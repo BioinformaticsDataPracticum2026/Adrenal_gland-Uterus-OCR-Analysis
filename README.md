@@ -16,7 +16,7 @@ todo
 
 Multi-species alignment: `/ocean/projects/bio230007p/ikaplow/Alignments/10plusway-master.hal`
 
-ATAC-seq:
+IDR Conservative peaks:
 
 ```bash
 # Human
@@ -30,7 +30,7 @@ ATAC-seq:
 
 Using https://github.com/pfenninglab/halLiftover-postprocessing/tree/master
 
-Set -t (1h not enough)
+run_hal.sh: 
 
 ```bash
 #!/bin/bash
@@ -73,7 +73,11 @@ sbatch -p RM-shared --mem=2000 -t 08:00:00 $HALPER_SCRIPT \
   -s Mouse \
   -t Human \
   -c $HAL
+  
+echo "All jobs submitted."
 ```
+
+Output data: `/ocean/projects/bio230007p/xli51/data/hal_Mapper_Peaks`
 
 ## Compare open chromatin between species
 
