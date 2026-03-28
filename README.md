@@ -8,5 +8,25 @@ Team members: Xinyi L., Jimmy L., Yu Hsin C.
 
 todo
 
+## Evaluate data quality
 
+
+
+## Map open chromatin regions across species
+
+
+
+## Compare open chromatin between species
+
+
+
+## Find biological processes that are likely to be regulated by open chromatin regions
+
+
+
+## Compare candidate enhancers to candidate promoters
+
+
+
+## Find transcription factors that tend to bind open chromatin regions
 
