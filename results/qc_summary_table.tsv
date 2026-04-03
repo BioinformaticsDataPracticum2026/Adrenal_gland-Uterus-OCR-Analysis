@@ -1,0 +1,19 @@
+Metric	Human Adrenal	Mouse Adrenal	Human Uterus	Mouse Uterus
+Mapped Reads (Rep1)	527,417,446	96,799,143	550,144,926	66,187,801
+Mapped Reads (Rep2)	139,999,369	146,277,744	327,401,158	89,863,880
+Distinct Fragments (Rep1)	185,516,077	8,851,836	197,122,543	26,518,462
+Distinct Fragments (Rep2)	51,090,993	13,587,085	132,285,165	36,243,736
+NRF (Rep1)	0.8622	0.3016	0.8377	0.9547
+NRF (Rep2)	0.8864	0.2705	0.9482	0.9576
+TSS Enrichment (Rep1)	19.19	18.37	13.88	5.7
+TSS Enrichment (Rep2)	20.39	19.0	6.78	6.24
+% Duplication (Rep1)	20.9296	75.2829	17.4262	4.6259
+% Duplication (Rep2)	15.6572	76.3356	5.9135	4.3677
+Mito Fraction (Rep1)	0.0893	0.2817	0.0263	0.0038
+Mito Fraction (Rep2)	0.07	0.2052	0.013	0.004
+FRiP - Optimal Set	0.5174	0.1987	0.1444	0.0559
+FRiP - Conservative Set	0.4536	0.1976	0.1077	0.0542
+IDR Optimal Peaks	206,765	48,263	148,723	44,729
+IDR Conservative Peaks	150,470	47,792	79,438	42,412
+IDR Reproducibility	pass	pass	borderline	pass
+Selected for Analysis	Yes ✓	Yes ✓	No	No

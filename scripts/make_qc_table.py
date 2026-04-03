@@ -4,13 +4,13 @@ Extract QC metrics from ENCODE ATAC-seq pipeline qc.json files
 and generate a summary table for the project report.
 
 Usage:
-    python make_qc_table.py \
-        --human-adrenal /path/to/human_adrenal/qc.json \
-        --mouse-adrenal /path/to/mouse_adrenal/qc.json \
-        --human-uterus  /path/to/human_uterus/qc.json \
-        --mouse-uterus  /path/to/mouse_uterus/qc.json \
-        --out-tsv   results/qc_summary_table.tsv \
-        --out-md    results/qc_summary_table.md
+    python scripts/make_qc_table.py \
+        --human-adrenal /ocean/projects/bio200034p/ikaplow/HumanDNase/AdrenalGlandFemaleGoodReps/atac/qc/qc.json \
+        --mouse-adrenal /ocean/projects/bio200034p/ikaplow/MouseDNase/AdrenalGland2025/atac/qc/qc.json \
+        --human-uterus  /ocean/projects/bio200034p/ikaplow/HumanDNase/UterusFemale/atac/qc/qc.json \
+        --mouse-uterus  /ocean/projects/bio200034p/ikaplow/MouseDNase/Uterus2025/atac/qc/qc.json \
+        --out-tsv results/qc_summary_table.tsv \
+        --out-md  results/qc_summary_table.md
 """
 
 import json
@@ -19,13 +19,13 @@ import csv
 import sys
 
 DATASETS = [
-    ("Human Adrenal", "human_adrenal", True),   # (label, arg_key, selected)
+    ("Human Adrenal", "human_adrenal", True),
     ("Mouse Adrenal", "mouse_adrenal", True),
     ("Human Uterus",  "human_uterus",  False),
     ("Mouse Uterus",  "mouse_uterus",  False),
 ]
 
-def safe_get(d, *keys, default="N/A", digits=3):
+def safe_get(d, *keys, default="N/A", digits=4):
     """Navigate nested dict safely; round floats if found."""
     for k in keys:
         if not isinstance(d, dict) or k not in d:
@@ -35,71 +35,75 @@ def safe_get(d, *keys, default="N/A", digits=3):
         return round(d, digits)
     return d if d is not None else default
 
+def fmt_int(val):
+    """Format large integers with commas."""
+    if isinstance(val, int):
+        return f"{val:,}"
+    return val
+
 def parse_qc(path):
-    """Parse an ENCODE ATAC-seq qc.json and return a flat metrics dict per replicate."""
+    """Parse an ENCODE ATAC-seq qc.json and return a flat metrics dict."""
     with open(path) as f:
         q = json.load(f)
 
-    results = {}
+    result = {}
+
     for rep in ("rep1", "rep2"):
         r = {}
 
-        # --- Mapped reads (from alignment flagstat) ---
-        r["mapped_reads"] = safe_get(q, "align", rep, "samstat", "mapped",
-                                     default=safe_get(q, "align", rep, "flagstat", "mapped"))
+        # Mapped reads (post-alignment, pre-dedup)
+        r["mapped_reads"] = fmt_int(safe_get(q, "align", "samstat", rep, "mapped_reads"))
 
-        # --- Distinct fragments (from library complexity) ---
-        r["distinct_frags"] = safe_get(q, "lib_complexity", rep, "picard_est_lib_size")
+        # Distinct fragments (library complexity)
+        r["distinct_frags"] = fmt_int(safe_get(q, "lib_complexity", "lib_complexity", rep, "distinct_fragments"))
 
-        # --- NRF (Non-Redundant Fraction) ---
-        r["NRF"] = safe_get(q, "lib_complexity", rep, "NRF")
+        # NRF (Non-Redundant Fraction) - closer to 1 is better; >0.9 is ideal
+        r["NRF"] = safe_get(q, "lib_complexity", "lib_complexity", rep, "NRF")
 
-        # --- TSS enrichment ---
-        r["TSS_enrichment"] = safe_get(q, "tss_enrich", rep, "tss_enrich")
+        # TSS enrichment - measure of signal-to-noise; >6 is acceptable, >10 is good
+        r["TSS_enrichment"] = safe_get(q, "align_enrich", "tss_enrich", rep, "tss_enrich", digits=2)
 
-        # --- FRiP ---
-        r["FRiP"] = safe_get(q, "frac_reads_in_peaks", rep, "frip")
+        # Duplication rate
+        r["pct_dup"] = safe_get(q, "align", "dup", rep, "pct_duplicate_reads")
 
-        # --- Duplication rate ---
-        r["pct_dup"] = safe_get(q, "dup", rep, "pct_duplicate_reads")
+        # Mitochondrial fraction
+        r["frac_mito"] = safe_get(q, "align", "frac_mito", rep, "frac_mito_reads")
 
-        # --- Mitochondrial reads ---
-        r["pct_mito"] = safe_get(q, "align", rep, "samstat", "pct_mapped_reads_mito",
-                                  default=safe_get(q, "align", rep, "pct_mito"))
+        result[rep] = r
 
-        results[rep] = r
+    # IDR peak counts (dataset-level, not per replicate)
+    result["opt_peaks"]  = fmt_int(safe_get(q, "replication", "reproducibility", "idr", "N_opt"))
+    result["cons_peaks"] = fmt_int(safe_get(q, "replication", "reproducibility", "idr", "N_consv"))
+    result["reproducibility"] = safe_get(q, "replication", "reproducibility", "idr", "reproducibility")
 
-    # IDR peak counts (one per pair, not per replicate)
-    pair_key = next((k for k in q.get("idr", {}) if "rep" in k), None)
-    if pair_key:
-        results["opt_peaks"]  = safe_get(q, "idr", pair_key, "opt_pks")
-        results["cons_peaks"] = safe_get(q, "idr", pair_key, "consv_pks")
-    else:
-        results["opt_peaks"]  = "N/A"
-        results["cons_peaks"] = "N/A"
+    # FRiP against IDR peak sets
+    # pooled-pr1_vs_pooled-pr2 = optimal set; rep1_vs_rep2 = conservative set
+    result["frip_optimal"]       = safe_get(q, "peak_enrich", "frac_reads_in_peaks", "idr", "pooled-pr1_vs_pooled-pr2", "frip")
+    result["frip_conservative"]  = safe_get(q, "peak_enrich", "frac_reads_in_peaks", "idr", "rep1_vs_rep2", "frip")
 
-    return results
+    return result
 
 def build_rows(paths):
     """Return list of row dicts for TSV/markdown output."""
     metrics = [
-        ("TSS Enrichment (Rep1)",     lambda m: m["rep1"]["TSS_enrichment"]),
-        ("TSS Enrichment (Rep2)",     lambda m: m["rep2"]["TSS_enrichment"]),
-        ("FRiP (Rep1)",               lambda m: m["rep1"]["FRiP"]),
-        ("FRiP (Rep2)",               lambda m: m["rep2"]["FRiP"]),
-        ("Mapped Reads (Rep1)",       lambda m: m["rep1"]["mapped_reads"]),
-        ("Mapped Reads (Rep2)",       lambda m: m["rep2"]["mapped_reads"]),
-        ("Distinct Fragments (Rep1)", lambda m: m["rep1"]["distinct_frags"]),
-        ("Distinct Fragments (Rep2)", lambda m: m["rep2"]["distinct_frags"]),
-        ("NRF (Rep1)",                lambda m: m["rep1"]["NRF"]),
-        ("NRF (Rep2)",                lambda m: m["rep2"]["NRF"]),
-        ("% Duplication (Rep1)",      lambda m: m["rep1"]["pct_dup"]),
-        ("% Duplication (Rep2)",      lambda m: m["rep2"]["pct_dup"]),
-        ("% Mitochondrial (Rep1)",    lambda m: m["rep1"]["pct_mito"]),
-        ("% Mitochondrial (Rep2)",    lambda m: m["rep2"]["pct_mito"]),
-        ("IDR Optimal Peaks",         lambda m: m["opt_peaks"]),
-        ("IDR Conservative Peaks",    lambda m: m["cons_peaks"]),
-        ("Selected for Analysis",     None),   # filled manually below
+        ("Mapped Reads (Rep1)",           lambda m: m["rep1"]["mapped_reads"]),
+        ("Mapped Reads (Rep2)",           lambda m: m["rep2"]["mapped_reads"]),
+        ("Distinct Fragments (Rep1)",     lambda m: m["rep1"]["distinct_frags"]),
+        ("Distinct Fragments (Rep2)",     lambda m: m["rep2"]["distinct_frags"]),
+        ("NRF (Rep1)",                    lambda m: m["rep1"]["NRF"]),
+        ("NRF (Rep2)",                    lambda m: m["rep2"]["NRF"]),
+        ("TSS Enrichment (Rep1)",         lambda m: m["rep1"]["TSS_enrichment"]),
+        ("TSS Enrichment (Rep2)",         lambda m: m["rep2"]["TSS_enrichment"]),
+        ("% Duplication (Rep1)",          lambda m: m["rep1"]["pct_dup"]),
+        ("% Duplication (Rep2)",          lambda m: m["rep2"]["pct_dup"]),
+        ("Mito Fraction (Rep1)",          lambda m: m["rep1"]["frac_mito"]),
+        ("Mito Fraction (Rep2)",          lambda m: m["rep2"]["frac_mito"]),
+        ("FRiP - Optimal Set",            lambda m: m["frip_optimal"]),
+        ("FRiP - Conservative Set",       lambda m: m["frip_conservative"]),
+        ("IDR Optimal Peaks",             lambda m: m["opt_peaks"]),
+        ("IDR Conservative Peaks",        lambda m: m["cons_peaks"]),
+        ("IDR Reproducibility",           lambda m: m["reproducibility"]),
+        ("Selected for Analysis",         None),
     ]
 
     parsed = {}
