@@ -93,6 +93,9 @@ Output data: `/ocean/projects/bio230007p/xli51/data/hal_Mapper_Peaks`
 
 ## Find biological processes that are likely to be regulated by open chromatin regions
 
+Use local `rGREAT` analysis on IDR optimal peaks in `data/idr_Optimal_Peaks`, and generate visualization plots.
+
+These GO terms are standard Gene Ontology Biological Process categories enriched from genes linked to OCR regions. Most of them fall into very general functions such as gene expression, biosynthetic and metabolic processes, and regulation, which are commonly observed in enrichment analyses of regulatory regions. However, the results are quite broad and lack tissue-specific signals, suggesting that the enrichment is dominated by housekeeping functions rather than specific biological pathways. The relatively low fold enrichment also indicates weak specificity. This likely reflects limitations in how OCRs were mapped to genes or the broad nature of the regions, so more refined mapping or stratified analysis would be needed to obtain more biologically meaningful insights.
 
 
 ## Compare candidate enhancers to candidate promoters
@@ -100,4 +103,3 @@ Output data: `/ocean/projects/bio230007p/xli51/data/hal_Mapper_Peaks`
 
 
 ## Find transcription factors that tend to bind open chromatin regions
-
