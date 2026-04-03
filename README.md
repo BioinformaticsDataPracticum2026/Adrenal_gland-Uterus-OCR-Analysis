@@ -75,6 +75,14 @@ sbatch -p RM-shared --mem=2000 -t 08:00:00 $HALPER_SCRIPT \
   -c $HAL
   
 echo "All jobs submitted."
+
+
+sbatch -A bio230007p -p RM --mem=2000 -t 24:00:00 /jet/home/xli51/repos/halLiftover-postprocessing/halper_map_peak_orthologs.sh \
+  -b /ocean/projects/bio230007p/xli51/data/idr_Conservative_Peaks/Human_AdrenalGland_idr.conservative_peak.narrowPeak \
+  -o AdrenalGland_halper_human_to_mouse \
+  -s Human \
+  -t Mouse \
+  -c /ocean/projects/bio230007p/ikaplow/Alignments/10plusway-master.hal
 ```
 
 Output data: `/ocean/projects/bio230007p/xli51/data/hal_Mapper_Peaks`
