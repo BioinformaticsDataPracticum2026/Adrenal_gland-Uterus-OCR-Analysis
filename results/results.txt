@@ -1,0 +1,19 @@
+AdrenalGland Promoter/Enhancer Classification Results
+
+Human Adrenal
+========================
+Total peaks: 206765
+Promoter peaks: 72666
+Enhancer peaks: 134099
+
+Promoter percentage: 35.15%
+Enhancer percentage: 64.85%
+
+Mouse Adrenal
+========================
+Total peaks: 48263
+Promoter peaks: 27105
+Enhancer peaks: 21158
+
+Promoter percentage: 56.17%
+Enhancer percentage: 43.83%
