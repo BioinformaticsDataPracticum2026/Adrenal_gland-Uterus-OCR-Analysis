@@ -11,6 +11,7 @@ This project compares open chromatin regions (OCRs) between adrenal gland and ut
 - QC summaries for all four datasets
 - IDR conservative and optimal peak sets
 - Cross-species OCR mapping with HAL/HALPER
+- Species-conserved and species-specific peak classification (Mouse→Human)
 - Local `rGREAT` functional enrichment analysis on optimal OCRs
 - Promoter/enhancer partitioning for adrenal gland OCRs
 
@@ -19,17 +20,20 @@ Repository structure:
 ```text
 data/
   qc_html/                    ENCODE-style QC HTML reports
-  idr_Conservative_Peaks/     conservative peak sets used for initial mapping
+  idr_Conservative_Peaks/     conservative peak sets used for cross-species mapping
   idr_Optimal_Peaks/          optimal peak sets used for downstream analyses
+  halper_peaks/               Mouse→Human HALPER liftover outputs
   Promoters_and_Enhancers/    promoter/enhancer split peak sets and lifted results
 scripts/
   1a-1c                       QC summary and peak counting scripts
   2a-2b                       rGREAT enrichment and plotting scripts
   3a-3b                       adrenal promoter/enhancer calling and HALPER mapping
+  4a                          species-conserved vs. species-specific peak classification
 results/
   qc/                         QC tables and interpretation
   rGREAT/                     GO enrichment tables and dot plots
   Enhancer_and_Promoters/     adrenal promoter/enhancer summary
+  peak_classification/        conserved and species-specific peak calls
 ```
 
 ## Dependencies
@@ -39,7 +43,7 @@ The analyses in this repository depend on the following software and packages:
 - `Python 3` for QC summary scripts
 - `R` for functional enrichment and plotting
 - R packages: `rGREAT`, `GenomicRanges`, `IRanges`, `ggplot2`
-- `bedtools` for promoter/enhancer partitioning
+- `bedtools` for promoter/enhancer partitioning and peak classification
 - `HALPER` and `halLiftover` for cross-species OCR mapping
 - access to the multi-species HAL alignment file `10plusway-master.hal`
 - a SLURM environment for submitting the HAL/HALPER jobs in `scripts/3b_run_hal_promoter_enhancer.sh`
@@ -115,7 +119,41 @@ Mapped promoter/enhancer liftovers are already available for:
 - mouse adrenal promoter to human
 - mouse adrenal enhancer to human
 
-## 4. Find transcription factors that tend to bind open chromatin regions
+## 4. Compare open chromatin between species
+
+Mouse IDR conservative peaks were mapped to the human genome using [HALPER](https://github.com/pfenninglab/halLiftover-postprocessing) (Mouse→Human direction) via the Cactus whole-genome alignment `10plusway-master.hal`. Liftover outputs are stored in `data/halper_peaks/`.
+
+Peaks were then classified using one-directional Mouse→Human overlap:
+
+| Class | Definition | Confidence |
+|---|---|---|
+| Mouse-conserved | Mouse peak lifts to human genome AND overlaps a native human peak | High |
+| Mouse-specific | Mouse peak does not lift over, OR lifts over but misses all human peaks | High |
+| Human peak with mouse ortholog | Human peak overlapped by an M→H HALPER entry | Moderate |
+| Candidate human-specific | Human peak with no M→H overlap | Moderate |
+
+> Human classifications are inferred from the mouse perspective. Without Human→Mouse liftover data, human-specific calls may also reflect alignment gaps rather than true regulatory divergence — this is acknowledged as a methodological limitation.
+
+Relevant script:
+
+- `scripts/4a_classify_conserved_peaks.sh`: runs `bedtools intersect` on HALPER outputs and IDR conservative peaks; writes four output files per tissue to `results/peak_classification/`
+
+To run (requires `bedtools` ≥ 2.30):
+
+```bash
+bash scripts/4a_classify_conserved_peaks.sh
+```
+
+Output files in `results/peak_classification/`:
+
+```text
+{Tissue}_mouse_conserved.narrowPeak
+{Tissue}_mouse_specific.narrowPeak
+{Tissue}_human_with_mouse_ortholog.narrowPeak
+{Tissue}_human_candidate_specific.narrowPeak
+```
+
+## 5. Find transcription factors that tend to bind open chromatin regions
 
 todo
 
