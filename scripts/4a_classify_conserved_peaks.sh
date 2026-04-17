@@ -16,23 +16,31 @@
 
 set -euo pipefail
 
-HALPER_DIR="data/halper_peaks"
-IDR_DIR="data/idr_Conservative_Peaks"
-OUT_DIR="results/peak_classification"
-TMP_DIR="$OUT_DIR/tmp"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
-mkdir -p "$OUT_DIR" "$TMP_DIR"
+DATA_DIR="$REPO_ROOT/data/Promoters_and_Enhancers"
+RESULTS_DIR="$REPO_ROOT/results/Enhancer_and_Promoters"
+CONSERVED_DIR="$RESULTS_DIR/Conserved"
+SPECIFIC_DIR="$RESULTS_DIR/Specific"
+TMP_DIR="$RESULTS_DIR/tmp"
+SUMMARY_TXT="$RESULTS_DIR/conserved_specific_summary.txt"
 
-for TISSUE in AdrenalGland Uterus; do
+mkdir -p "$CONSERVED_DIR" "$SPECIFIC_DIR" "$TMP_DIR"
+rm -f "$SUMMARY_TXT"
+
+exec > >(tee "$SUMMARY_TXT") 2>&1
+
+for FEATURE in enhancer promoter; do
     echo "========================================"
-    echo "  Tissue: $TISSUE"
+    echo "  Feature: adrenal $FEATURE"
     echo "========================================"
 
-    M2H="$HALPER_DIR/Mouse_${TISSUE}_idr.conservative_peak.MouseToHuman.HALPER.narrowPeak"
-    HUMAN_IDR="$IDR_DIR/Human_${TISSUE}_idr.conservative_peak.narrowPeak"
-    MOUSE_IDR="$IDR_DIR/Mouse_${TISSUE}_idr.conservative_peak.narrowPeak"
+    M2H="$DATA_DIR/mouse_adrenal_${FEATURE}_peaks.MouseToHuman.HALPER.narrowPeak"
+    HUMAN_PEAKS="$DATA_DIR/human_adrenal_${FEATURE}_peaks.bed"
+    MOUSE_PEAKS="$DATA_DIR/mouse_adrenal_${FEATURE}_peaks.bed"
 
-    for f in "$M2H" "$HUMAN_IDR" "$MOUSE_IDR"; do
+    for f in "$M2H" "$HUMAN_PEAKS" "$MOUSE_PEAKS"; do
         if [[ ! -f "$f" ]]; then
             echo "  [SKIP] Missing file: $f"
             continue 2
@@ -40,73 +48,73 @@ for TISSUE in AdrenalGland Uterus; do
     done
 
     # ------------------------------------------------------------------ #
-    # Step 1: Assign coordinate-based IDs to IDR peaks (col 4 = ".")     #
+    # Step 1: Assign coordinate-based IDs to peak sets                    #
     #         Format: chr:start-end                                        #
     # ------------------------------------------------------------------ #
-    awk 'OFS="\t" {$4=$1":"$2"-"$3; print}' "$HUMAN_IDR" \
-        > "$TMP_DIR/${TISSUE}_human_named.narrowPeak"
-    awk 'OFS="\t" {$4=$1":"$2"-"$3; print}' "$MOUSE_IDR" \
-        > "$TMP_DIR/${TISSUE}_mouse_named.narrowPeak"
+    awk 'OFS="\t" {$4=$1":"$2"-"$3; print}' "$HUMAN_PEAKS" \
+        > "$TMP_DIR/${FEATURE}_human_named.bed"
+    awk 'OFS="\t" {$4=$1":"$2"-"$3; print}' "$MOUSE_PEAKS" \
+        > "$TMP_DIR/${FEATURE}_mouse_named.bed"
 
     # Strip summit offset from HALPER name field
     # e.g. "chr3:45000000-45001000:532" -> "chr3:45000000-45001000"
     awk 'OFS="\t" {sub(/:[0-9]+$/, "", $4); print}' "$M2H" \
-        > "$TMP_DIR/${TISSUE}_M2H_named.narrowPeak"
+        > "$TMP_DIR/${FEATURE}_M2H_named.bed"
 
     # ------------------------------------------------------------------ #
     # Step 2: M→H overlap                                                 #
-    #         Mouse peaks in human coords vs. human native peaks           #
+    #         Mouse peaks lifted to human coords vs. human native peaks    #
     #         $4 = mouse source peak ID  |  $14 = human native peak ID    #
     # ------------------------------------------------------------------ #
     bedtools intersect \
-        -a "$TMP_DIR/${TISSUE}_M2H_named.narrowPeak" \
-        -b "$TMP_DIR/${TISSUE}_human_named.narrowPeak" \
-        -wa -wb > "$TMP_DIR/${TISSUE}_M2H_overlaps.bed"
+        -a "$TMP_DIR/${FEATURE}_M2H_named.bed" \
+        -b "$TMP_DIR/${FEATURE}_human_named.bed" \
+        -wa -wb > "$TMP_DIR/${FEATURE}_M2H_overlaps.bed"
 
     # ------------------------------------------------------------------ #
     # Step 3: Extract peak IDs from overlaps                              #
     # ------------------------------------------------------------------ #
-    cut -f4  "$TMP_DIR/${TISSUE}_M2H_overlaps.bed" | sort -u \
-        > "$TMP_DIR/${TISSUE}_conserved_mouse_ids.txt"
-    cut -f14 "$TMP_DIR/${TISSUE}_M2H_overlaps.bed" | sort -u \
-        > "$TMP_DIR/${TISSUE}_human_ortholog_ids.txt"
+    cut -f4  "$TMP_DIR/${FEATURE}_M2H_overlaps.bed" | sort -u \
+        > "$TMP_DIR/${FEATURE}_conserved_mouse_ids.txt"
+    cut -f14 "$TMP_DIR/${FEATURE}_M2H_overlaps.bed" | sort -u \
+        > "$TMP_DIR/${FEATURE}_human_ortholog_ids.txt"
 
     # ------------------------------------------------------------------ #
-    # Step 4: Write output narrowPeak files                               #
+    # Step 4: Write output files                                          #
     # ------------------------------------------------------------------ #
     awk 'NR==FNR {k[$1]=1; next} ($4 in k)' \
-        "$TMP_DIR/${TISSUE}_conserved_mouse_ids.txt" \
-        "$TMP_DIR/${TISSUE}_mouse_named.narrowPeak" \
-        > "$OUT_DIR/${TISSUE}_mouse_conserved.narrowPeak"
+        "$TMP_DIR/${FEATURE}_conserved_mouse_ids.txt" \
+        "$TMP_DIR/${FEATURE}_mouse_named.bed" \
+        > "$CONSERVED_DIR/mouse_adrenal_${FEATURE}_conserved.bed"
 
     awk 'NR==FNR {k[$1]=1; next} !($4 in k)' \
-        "$TMP_DIR/${TISSUE}_conserved_mouse_ids.txt" \
-        "$TMP_DIR/${TISSUE}_mouse_named.narrowPeak" \
-        > "$OUT_DIR/${TISSUE}_mouse_specific.narrowPeak"
+        "$TMP_DIR/${FEATURE}_conserved_mouse_ids.txt" \
+        "$TMP_DIR/${FEATURE}_mouse_named.bed" \
+        > "$SPECIFIC_DIR/mouse_adrenal_${FEATURE}_specific.bed"
 
     awk 'NR==FNR {k[$1]=1; next} ($4 in k)' \
-        "$TMP_DIR/${TISSUE}_human_ortholog_ids.txt" \
-        "$TMP_DIR/${TISSUE}_human_named.narrowPeak" \
-        > "$OUT_DIR/${TISSUE}_human_with_mouse_ortholog.narrowPeak"
+        "$TMP_DIR/${FEATURE}_human_ortholog_ids.txt" \
+        "$TMP_DIR/${FEATURE}_human_named.bed" \
+        > "$CONSERVED_DIR/human_adrenal_${FEATURE}_with_mouse_ortholog.bed"
 
     awk 'NR==FNR {k[$1]=1; next} !($4 in k)' \
-        "$TMP_DIR/${TISSUE}_human_ortholog_ids.txt" \
-        "$TMP_DIR/${TISSUE}_human_named.narrowPeak" \
-        > "$OUT_DIR/${TISSUE}_human_candidate_specific.narrowPeak"
+        "$TMP_DIR/${FEATURE}_human_ortholog_ids.txt" \
+        "$TMP_DIR/${FEATURE}_human_named.bed" \
+        > "$SPECIFIC_DIR/human_adrenal_${FEATURE}_candidate_specific.bed"
 
     # ------------------------------------------------------------------ #
     # Step 5: Summary                                                      #
     # ------------------------------------------------------------------ #
-    TOTAL_M=$(wc -l < "$MOUSE_IDR")
-    TOTAL_H=$(wc -l < "$HUMAN_IDR")
-    N_M2H=$(wc -l < "$TMP_DIR/${TISSUE}_M2H_named.narrowPeak")
-    N_CONS_M=$(wc -l < "$OUT_DIR/${TISSUE}_mouse_conserved.narrowPeak")
-    N_SPEC_M=$(wc -l < "$OUT_DIR/${TISSUE}_mouse_specific.narrowPeak")
-    N_H_ORTH=$(wc -l < "$OUT_DIR/${TISSUE}_human_with_mouse_ortholog.narrowPeak")
-    N_H_SPEC=$(wc -l < "$OUT_DIR/${TISSUE}_human_candidate_specific.narrowPeak")
+    TOTAL_M=$(wc -l < "$MOUSE_PEAKS")
+    TOTAL_H=$(wc -l < "$HUMAN_PEAKS")
+    N_M2H=$(wc -l < "$TMP_DIR/${FEATURE}_M2H_named.bed")
+    N_CONS_M=$(wc -l < "$CONSERVED_DIR/mouse_adrenal_${FEATURE}_conserved.bed")
+    N_SPEC_M=$(wc -l < "$SPECIFIC_DIR/mouse_adrenal_${FEATURE}_specific.bed")
+    N_H_ORTH=$(wc -l < "$CONSERVED_DIR/human_adrenal_${FEATURE}_with_mouse_ortholog.bed")
+    N_H_SPEC=$(wc -l < "$SPECIFIC_DIR/human_adrenal_${FEATURE}_candidate_specific.bed")
 
     echo ""
-    echo "  --- Mouse peaks ---"
+    echo "  --- Mouse adrenal $FEATURE peaks ---"
     printf "  %-40s %6d\n" "Total:" "$TOTAL_M"
     printf "  %-40s %6d\n" "  Lifted over (M→H):" "$N_M2H"
     printf "  %-40s %6d  (%.1f%%)\n" "  Conserved (overlap human peak):" \
@@ -115,7 +123,7 @@ for TISSUE in AdrenalGland Uterus; do
         "$N_SPEC_M" "$(awk "BEGIN{printf \"%.1f\", $N_SPEC_M/$TOTAL_M*100}")"
 
     echo ""
-    echo "  --- Human peaks (inferred from M→H direction) ---"
+    echo "  --- Human adrenal $FEATURE peaks (inferred from M→H direction) ---"
     printf "  %-40s %6d\n" "Total:" "$TOTAL_H"
     printf "  %-40s %6d  (%.1f%%)\n" "  With mouse ortholog:" \
         "$N_H_ORTH" "$(awk "BEGIN{printf \"%.1f\", $N_H_ORTH/$TOTAL_H*100}")"
@@ -125,5 +133,9 @@ for TISSUE in AdrenalGland Uterus; do
     echo ""
 done
 
-echo "Output written to: $OUT_DIR"
+echo "Conserved output written to: $CONSERVED_DIR"
+echo "Specific output written to: $SPECIFIC_DIR"
+rm -rf "$TMP_DIR"
+echo "Temporary directory removed: $TMP_DIR"
+echo "Summary written to: $SUMMARY_TXT"
 echo "Done."

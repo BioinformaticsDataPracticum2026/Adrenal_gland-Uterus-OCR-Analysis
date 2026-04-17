@@ -1,0 +1,37 @@
+========================================
+  Feature: adrenal enhancer
+========================================
+
+  --- Mouse adrenal enhancer peaks ---
+  Total:                                    21158
+    Lifted over (M→H):                     6442
+    Conserved (overlap human peak):          2516  (11.9%)
+    Mouse-specific:                         18642  (88.1%)
+
+  --- Human adrenal enhancer peaks (inferred from M→H direction) ---
+  Total:                                   134099
+    With mouse ortholog:                     4360  (3.3%)
+    Candidate human-specific:              129739  (96.7%)
+  (Note: human classification is inferential without H→M liftover)
+
+========================================
+  Feature: adrenal promoter
+========================================
+
+  --- Mouse adrenal promoter peaks ---
+  Total:                                    27105
+    Lifted over (M→H):                     3533
+    Conserved (overlap human peak):          2727  (10.1%)
+    Mouse-specific:                         24378  (89.9%)
+
+  --- Human adrenal promoter peaks (inferred from M→H direction) ---
+  Total:                                    72666
+    With mouse ortholog:                     8323  (11.5%)
+    Candidate human-specific:               64343  (88.5%)
+  (Note: human classification is inferential without H→M liftover)
+
+Conserved output written to: /mnt/d/Bioinfo/Adrenal_gland-Uterus-OCR-Analysis/results/Enhancer_and_Promoters/Conserved
+Specific output written to: /mnt/d/Bioinfo/Adrenal_gland-Uterus-OCR-Analysis/results/Enhancer_and_Promoters/Specific
+Temporary directory removed: /mnt/d/Bioinfo/Adrenal_gland-Uterus-OCR-Analysis/results/Enhancer_and_Promoters/tmp
+Summary written to: /mnt/d/Bioinfo/Adrenal_gland-Uterus-OCR-Analysis/results/Enhancer_and_Promoters/conserved_specific_summary.txt
+Done.

@@ -121,22 +121,11 @@ Mapped promoter/enhancer liftovers are already available for:
 
 ## 4. Compare open chromatin between species
 
-Mouse IDR conservative peaks were mapped to the human genome using [HALPER](https://github.com/pfenninglab/halLiftover-postprocessing) (Mouse→Human direction) via the Cactus whole-genome alignment `10plusway-master.hal`. Liftover outputs are stored in `data/halper_peaks/`.
-
-Peaks were then classified using one-directional Mouse→Human overlap:
-
-| Class | Definition | Confidence |
-|---|---|---|
-| Mouse-conserved | Mouse peak lifts to human genome AND overlaps a native human peak | High |
-| Mouse-specific | Mouse peak does not lift over, OR lifts over but misses all human peaks | High |
-| Human peak with mouse ortholog | Human peak overlapped by an M→H HALPER entry | Moderate |
-| Candidate human-specific | Human peak with no M→H overlap | Moderate |
-
-> Human classifications are inferred from the mouse perspective. Without Human→Mouse liftover data, human-specific calls may also reflect alignment gaps rather than true regulatory divergence — this is acknowledged as a methodological limitation.
+Adrenal promoter and enhancer peak sets were compared between mouse and human using the available Mouse→Human HALPER outputs together with `bedtools intersect`. Conserved peaks were defined as lifted mouse peaks that overlap the corresponding human peak set, and the remaining peaks were retained as species-specific candidates.
 
 Relevant script:
 
-- `scripts/4a_classify_conserved_peaks.sh`: runs `bedtools intersect` on HALPER outputs and IDR conservative peaks; writes four output files per tissue to `results/peak_classification/`
+- `scripts/4a_classify_conserved_peaks.sh`: compares the adrenal promoter/enhancer peak sets in `data/Promoters_and_Enhancers/` and writes conserved and specific peak files to `results/Enhancer_and_Promoters/`
 
 To run (requires `bedtools` ≥ 2.30):
 
@@ -144,14 +133,20 @@ To run (requires `bedtools` ≥ 2.30):
 bash scripts/4a_classify_conserved_peaks.sh
 ```
 
-Output files in `results/peak_classification/`:
+Results are stored in `results/Enhancer_and_Promoters/`:
 
 ```text
-{Tissue}_mouse_conserved.narrowPeak
-{Tissue}_mouse_specific.narrowPeak
-{Tissue}_human_with_mouse_ortholog.narrowPeak
-{Tissue}_human_candidate_specific.narrowPeak
+results/Enhancer_and_Promoters/Conserved/
+results/Enhancer_and_Promoters/Specific/
+results/Enhancer_and_Promoters/conserved_specific_summary.txt
 ```
+
+Current summary from `results/Enhancer_and_Promoters/conserved_specific_summary.txt`:
+
+- Mouse adrenal enhancer: 21,158 total peaks, 6,442 lifted to human, 2,516 conserved (11.9%), 18,642 mouse-specific (88.1%)
+- Human adrenal enhancer: 134,099 total peaks, 4,360 with mouse ortholog (3.3%), 129,739 candidate human-specific (96.7%)
+- Mouse adrenal promoter: 27,105 total peaks, 3,533 lifted to human, 2,727 conserved (10.1%), 24,378 mouse-specific (89.9%)
+- Human adrenal promoter: 72,666 total peaks, 8,323 with mouse ortholog (11.5%), 64,343 candidate human-specific (88.5%)
 
 ## 5. Find transcription factors that tend to bind open chromatin regions
 
