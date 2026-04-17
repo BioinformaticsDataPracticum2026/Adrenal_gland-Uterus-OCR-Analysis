@@ -18,19 +18,33 @@ Repository structure:
 
 ```text
 data/
-  qc/                         ENCODE-style QC HTML reports
+  qc_html/                    ENCODE-style QC HTML reports
   idr_Conservative_Peaks/     conservative peak sets used for initial mapping
   idr_Optimal_Peaks/          optimal peak sets used for downstream analyses
-  hal_Mapper_Peaks/           HALPER-mapped OCR peak files
   Promoters_and_Enhancers/    promoter/enhancer split peak sets and lifted results
-scripts/                      analysis scripts and job submission helpers
+scripts/
+  1a-1c                       QC summary and peak counting scripts
+  2a-2b                       rGREAT enrichment and plotting scripts
+  3a-3b                       adrenal promoter/enhancer calling and HALPER mapping
 results/
   qc/                         QC tables and interpretation
   rGREAT/                     GO enrichment tables and dot plots
-  promoters_enhancers.txt     adrenal promoter/enhancer summary
+  Enhancer_and_Promoters/     adrenal promoter/enhancer summary
 ```
 
-## Evaluate data quality
+## Dependencies
+
+The analyses in this repository depend on the following software and packages:
+
+- `Python 3` for QC summary scripts
+- `R` for functional enrichment and plotting
+- R packages: `rGREAT`, `GenomicRanges`, `IRanges`, `ggplot2`
+- `bedtools` for promoter/enhancer partitioning
+- `HALPER` and `halLiftover` for cross-species OCR mapping
+- access to the multi-species HAL alignment file `10plusway-master.hal`
+- a SLURM environment for submitting the HAL/HALPER jobs in `scripts/3b_run_hal_promoter_enhancer.sh`
+
+## 1. Evaluate data quality
 
 QC summaries are stored in `results/qc/`:
 
@@ -40,9 +54,9 @@ QC summaries are stored in `results/qc/`:
 
 Relevant scripts:
 
-- `scripts/extract_qc_metrics.py`: extracts key QC metrics from ENCODE ATAC-seq outputs
-- `scripts/make_qc_table.py`: builds the final QC summary table
-- `scripts/count_peaks.sh`: counts reproducible IDR conservative peaks
+- `scripts/1a_make_qc_table.py`: builds the final QC summary table
+- `scripts/1b_extract_qc_metrics.py`: extracts key QC metrics from ENCODE ATAC-seq outputs
+- `scripts/1c_count_peaks.sh`: counts reproducible IDR conservative peaks
 
 Summary of the current QC conclusion:
 
@@ -53,53 +67,14 @@ Summary of the current QC conclusion:
 
 Conclusion: adrenal gland datasets show better and more consistent QC than uterus in both species, so adrenal gland was prioritized for downstream cross-species interpretation.
 
-## Map open chromatin regions across species
-
-Multi-species alignment:
-
-`/ocean/projects/bio230007p/ikaplow/Alignments/10plusway-master.hal`
-
-Current local inputs:
-
-- Conservative peaks: `data/idr_Conservative_Peaks/`
-- Optimal peaks: `data/idr_Optimal_Peaks/`
-- HALPER outputs: `data/hal_Mapper_Peaks/`
-
-Relevant scripts:
-
-- `scripts/run_hal.sh`: maps conservative peaks between human and mouse
-- `scripts/run_hal_optimal.sh`: maps optimal peaks between human and mouse
-
-The mapping was performed with HALPER:
-
-https://github.com/pfenninglab/halLiftover-postprocessing/tree/master
-
-Example output files:
-
-```text
-data/hal_Mapper_Peaks/Human_AdrenalGland_idr.conservative_peak.HumanToMouse.HALPER.narrowPeak
-data/hal_Mapper_Peaks/Mouse_AdrenalGland_idr.conservative_peak.MouseToHuman.HALPER.narrowPeak
-data/hal_Mapper_Peaks/Human_Uterus_idr.conservative_peak.HumanToMouse.HALPER.narrowPeak
-data/hal_Mapper_Peaks/Mouse_Uterus_idr.conservative_peak.MouseToHuman.HALPER.narrowPeak
-```
-
-## Compare open chromatin between species
-
-Cross-species mapped OCR files are available locally in `data/hal_Mapper_Peaks/` for both adrenal gland and uterus. This section is still in progress, but the repository already contains the lifted peak sets needed for overlap, conservation, and category-level comparisons.
-
-At the moment, the main completed downstream analyses built on these OCR sets are:
-
-- functional enrichment with `rGREAT`
-- promoter/enhancer partitioning for adrenal gland optimal peaks
-
-## Find biological processes that are likely to be regulated by open chromatin regions
+## 2. Find biological processes that are likely to be regulated by open chromatin regions
 
 We used local `rGREAT` analysis on the IDR optimal peaks in `data/idr_Optimal_Peaks`, and generated GO enrichment tables and dot plots for all four datasets.
 
 Relevant scripts:
 
-- `scripts/rGREAT.R`: runs local `rGREAT` on each optimal peak set for `GO:BP`, `GO:CC`, and `GO:MF`
-- `scripts/rGREAT_plot.R`: creates dot plots from each enrichment table
+- `scripts/2a_rGREAT.R`: runs local `rGREAT` on each optimal peak set for `GO:BP`, `GO:CC`, and `GO:MF`
+- `scripts/2b_rGREAT_plot.R`: creates dot plots from each enrichment table
 
 Results are stored in `results/rGREAT/`, with one directory per sample:
 
@@ -119,18 +94,18 @@ Current interpretation:
 
 These GO terms are standard Gene Ontology categories enriched from genes linked to OCR regions. Most of the enriched terms are broad functions such as gene expression, biosynthetic and metabolic processes, and general regulation. The results currently lack strong tissue-specific signals, suggesting that enrichment is dominated by housekeeping functions rather than adrenal- or uterus-specific pathways. The relatively modest fold enrichment also suggests limited specificity, so more refined peak-to-gene mapping or more targeted OCR subsets would likely improve biological interpretability.
 
-## Compare candidate enhancers to candidate promoters
+## 3. Compare candidate enhancers to candidate promoters
 
 Adrenal gland optimal OCRs were partitioned into promoter-proximal and enhancer-like sets using a 2 kb window around annotated TSSs.
 
 Relevant scripts:
 
-- `scripts/adrenal_promoter_enhancer.sh`: creates promoter and enhancer peak sets with `bedtools`
-- `scripts/run_hal_promoter_enhancer.sh`: maps adrenal promoter and enhancer sets across species with HALPER
+- `scripts/3a_call_adrenal_promoter_enhancer.sh`: creates promoter and enhancer peak sets with `bedtools`
+- `scripts/3b_run_hal_promoter_enhancer.sh`: maps adrenal promoter and enhancer sets across species with HALPER
 
 Intermediate and output files are stored in `data/Promoters_and_Enhancers/`.
 
-Current summary in `results/promoters_enhancers.txt`:
+Current summary in `results/Enhancer_and_Promoters/promoters_enhancers.txt`:
 
 - Human adrenal: 206,765 total peaks, 72,666 promoter peaks (35.15%), 134,099 enhancer peaks (64.85%)
 - Mouse adrenal: 48,263 total peaks, 27,105 promoter peaks (56.17%), 21,158 enhancer peaks (43.83%)
@@ -140,6 +115,20 @@ Mapped promoter/enhancer liftovers are already available for:
 - mouse adrenal promoter to human
 - mouse adrenal enhancer to human
 
-## Find transcription factors that tend to bind open chromatin regions
+## 4. Find transcription factors that tend to bind open chromatin regions
 
 todo
+
+## Citations
+
+1. Gu Z, Hubschmann D. rGREAT: an R/Bioconductor package for functional enrichment on genomic regions. *Bioinformatics*. 2023;39(1):btac745. https://doi.org/10.1093/bioinformatics/btac745
+2. Wickham H. *ggplot2: Elegant Graphics for Data Analysis*. Springer-Verlag New York; 2016. https://ggplot2.tidyverse.org
+3. Quinlan AR, Hall IM. BEDTools: a flexible suite of utilities for comparing genomic features. *Bioinformatics*. 2010;26(6):841-842. https://doi.org/10.1093/bioinformatics/btq033
+4. Zhang X, Kaplow I, Wirthlin M, Park T, Pfenning A. HALPER facilitates the identification of regulatory element orthologs across species. *Bioinformatics*. 2020;36(15):4339-4340. https://doi.org/10.1093/bioinformatics/btaa378
+5. Hickey G, Paten B, Earl D, Zerbino D, Haussler D. HAL: a hierarchical format for storing and analyzing multiple genome alignments. *Bioinformatics*. 2013;29(10):1341-1342. https://doi.org/10.1093/bioinformatics/btt128
+6. Paten B, Earl D, Nguyen N, Diekhans M, Zerbino D, Haussler D. Cactus: algorithms for genome multiple sequence alignment. *Genome Research*. 2011;21(9):1512-1528. https://doi.org/10.1101/gr.123356.111
+
+Useful package pages for the Bioconductor dependencies used in `scripts/rGREAT.R`:
+
+- GenomicRanges: https://bioconductor.org/packages/release/bioc/html/GenomicRanges.html
+- IRanges: https://bioconductor.org/packages/release/bioc/html/IRanges.html
