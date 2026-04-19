@@ -47,6 +47,7 @@ The analyses in this repository depend on the following software and packages:
 - `HALPER` and `halLiftover` for cross-species OCR mapping
 - access to the multi-species HAL alignment file `10plusway-master.hal`
 - a SLURM environment for submitting the HAL/HALPER jobs in `scripts/3b_run_hal_promoter_enhancer.sh`
+- `HOMER` for motif enrichment analysis, with `hg38` and `mm10` genome packages installed
 
 ## 1. Evaluate data quality
 
@@ -150,7 +151,40 @@ Current summary from `results/Enhancer_and_Promoters/conserved_specific_summary.
 
 ## 5. Find transcription factors that tend to bind open chromatin regions
 
-todo
+We used `HOMER` motif enrichment to compare species-specific adrenal OCR subsets against conserved OCR subsets as background. This analysis was run separately for promoter and enhancer peaks in human and mouse.
+
+Foreground and background sets:
+
+- human adrenal enhancer specific vs. human adrenal enhancer with mouse ortholog
+- human adrenal promoter specific vs. human adrenal promoter with mouse ortholog
+- mouse adrenal enhancer specific vs. mouse adrenal enhancer conserved
+- mouse adrenal promoter specific vs. mouse adrenal promoter conserved
+
+The script is configured for the PSC cluster environment and currently uses:
+
+- absolute project paths under `/ocean/projects/bio230007p/xli51/repo/Adrenal_gland-Uterus-OCR-Analysis/`
+- FASTA files `hg38.fa` and `mm10.fa` as the HOMER genome argument
+- `-size given`
+- `-mask`
+- the matched conserved set as `-bg`
+- `SLURM_CPUS_PER_TASK` (default `8`) for parallel threads
+
+To run on the cluster:
+
+```bash
+sbatch scripts/5_run_HOMER.sh
+```
+
+Results are written to:
+
+```text
+results/HOMER/human_enhancer_specific_vs_conserved/
+results/HOMER/human_promoter_specific_vs_conserved/
+results/HOMER/mouse_enhancer_specific_vs_conserved/
+results/HOMER/mouse_promoter_specific_vs_conserved/
+```
+
+Each output directory contains the standard HOMER motif enrichment reports for known and de novo motifs, along with the corresponding log files in `logs/`.
 
 ## Citations
 
@@ -160,6 +194,7 @@ todo
 4. Zhang X, Kaplow I, Wirthlin M, Park T, Pfenning A. HALPER facilitates the identification of regulatory element orthologs across species. *Bioinformatics*. 2020;36(15):4339-4340. https://doi.org/10.1093/bioinformatics/btaa378
 5. Hickey G, Paten B, Earl D, Zerbino D, Haussler D. HAL: a hierarchical format for storing and analyzing multiple genome alignments. *Bioinformatics*. 2013;29(10):1341-1342. https://doi.org/10.1093/bioinformatics/btt128
 6. Paten B, Earl D, Nguyen N, Diekhans M, Zerbino D, Haussler D. Cactus: algorithms for genome multiple sequence alignment. *Genome Research*. 2011;21(9):1512-1528. https://doi.org/10.1101/gr.123356.111
+7. Heinz S, Benner C, Spann N, et al. Simple combinations of lineage-determining transcription factors prime cis-regulatory elements required for macrophage and B cell identities. *Molecular Cell*. 2010;38(4):576-589. https://doi.org/10.1016/j.molcel.2010.05.004
 
 Useful package pages for the Bioconductor dependencies used in `scripts/rGREAT.R`:
 
