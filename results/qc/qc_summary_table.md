@@ -16,5 +16,5 @@
 | FRiP - Conservative Set | 0.4536 | 0.1976 | 0.1077 | 0.0542 |
 | IDR Optimal Peaks | 206,765 | 48,263 | 148,723 | 44,729 |
 | IDR Conservative Peaks | 150,470 | 47,792 | 79,438 | 42,412 |
-| IDR Reproducibility | pass | pass | borderline | pass |
+| IDR Reproducibility | 1.3741 | 1.0099 | 1.8722 | 1.0546 |
 | Selected for Analysis | Yes ✓ | Yes ✓ | No | No |

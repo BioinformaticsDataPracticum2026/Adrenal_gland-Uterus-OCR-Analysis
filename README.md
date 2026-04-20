@@ -53,45 +53,39 @@ The analyses in this repository depend on the following software and packages:
 
 QC summaries are stored in `results/qc/`:
 
-- `qc_summary_table.tsv` and `qc_summary_table.md`: combined metrics table
-- `qc_summary.txt`: extracted TSS enrichment and pooled FRiP values
-- `qc_interpretation.md`: short project-level interpretation
+- `*_checked.html`: threshold-annotated QC HTML reports generated from the raw ENCODE-style reports
+- `qc_summary_table.tsv` and `qc_summary_table.md`: combined metrics table across all four datasets
+- `peak_counts.txt` and `qc_interpretation.md`: supporting QC notes and interpretation
 
 Relevant scripts:
 
-- `scripts/1a_make_qc_table.py`: builds the final QC summary table
-- `scripts/1b_extract_qc_metrics.py`: extracts key QC metrics from ENCODE ATAC-seq outputs
-- `scripts/1c_count_peaks.sh`: counts reproducible IDR conservative peaks
+- `scripts/1a_qc_html_report.py`: enhances the ENCODE-style QC HTML reports with threshold annotations
+- `scripts/1b_make_qc_table.py`: parses the QC HTML reports, builds the final QC summary table, and can print a concise terminal summary including TSS enrichment, pooled FRiP, NRF/PBC metrics, and IDR peak counts
 
 To run:
 
 ```bash
-# Extract TSS enrichment, FRiP, and library complexity metrics
-python scripts/1b_extract_qc_metrics.py
+# Enhance QC HTML reports and write annotated HTML files to results/qc
+python scripts/1a_qc_html_report.py
 
-# Build combined QC summary table (provide paths to each dataset's qc.json)
-python scripts/1a_make_qc_table.py \
-    --human-adrenal <path/to/human_adrenal/qc.json> \
-    --mouse-adrenal <path/to/mouse_adrenal/qc.json> \
-    --human-uterus  <path/to/human_uterus/qc.json> \
-    --mouse-uterus  <path/to/mouse_uterus/qc.json> \
-    --out-tsv results/qc/qc_summary_table.tsv \
-    --out-md  results/qc/qc_summary_table.md
+# Build combined QC summary table from the HTML reports in data/qc_html
+# and print a concise QC summary to the terminal
+python scripts/1b_make_qc_table.py --print-summary
 
-# Count IDR conservative peaks for all four datasets
-bash scripts/1c_count_peaks.sh
+# Run both QC scripts in one command
+# PowerShell:
+python scripts/1a_qc_html_report.py; python scripts/1b_make_qc_table.py --print-summary
+
+# bash:
+python scripts/1a_qc_html_report.py && python scripts/1b_make_qc_table.py --print-summary
 ```
 
-**Note:** `scripts/1b_extract_qc_metrics.py` and `scripts/1c_count_peaks.sh` contain paths hardcoded to the PSC Bridges-2 project directory. Update these paths before running in a different environment.
+`1a_qc_html_report.py` reads QC HTML files from `data/qc_html/` by default and writes annotated `*_colored.html` reports to `results/qc/`. `1b_make_qc_table.py` reads the same HTML inputs by default, writes `qc_summary_table.tsv` and `qc_summary_table.md` to `results/qc/`, and optionally prints a concise per-sample summary with:
 
-Summary of the current QC conclusion:
-
-- Human adrenal: strongest overall signal, with TSS enrichment 19.19 and 20.39, pooled FRiP 0.565, and 150,470 conservative peaks
-- Mouse adrenal: strong TSS enrichment 18.37 and 19.00, pooled FRiP 0.287, and 47,792 conservative peaks
-- Human uterus: mixed replicate quality, pooled FRiP 0.184, and 79,438 conservative peaks
-- Mouse uterus: weakest signal, TSS enrichment 5.70 and 6.24, pooled FRiP 0.153, and 42,412 conservative peaks
-
-Conclusion: adrenal gland datasets show better and more consistent QC than uterus in both species, so adrenal gland was prioritized for downstream cross-species interpretation.
+- `TSS Rep1` / `TSS Rep2`
+- `FRiP (pooled)`
+- `IDR Optimal Peaks` / `IDR Conservative Peaks`
+- `NRF`, `PBC1`, and `PBC2` for each replicate
 
 ## 2. Find biological processes that are likely to be regulated by open chromatin regions
 
