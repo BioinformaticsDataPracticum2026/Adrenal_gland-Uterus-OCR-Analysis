@@ -150,9 +150,6 @@ From the repository root:
 # QC: annotate the QC HTML reports and build the QC summary table
 python scripts/1a_qc_html_report.py && python scripts/1b_make_qc_table.py --print-summary
 
-# Optional: count IDR conservative peaks
-bash scripts/1c_count_peaks.sh
-
 # Functional enrichment and plots
 Rscript scripts/2a_rGREAT.R
 Rscript scripts/2b_rGREAT_plot.R
