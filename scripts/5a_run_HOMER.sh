@@ -10,20 +10,35 @@
 
 set -euo pipefail
 
+# Run HOMER motif enrichment for adrenal promoter/enhancer peak subsets.
+#
+# Before running this script:
+# 1. Install HOMER yourself and make sure findMotifsGenome.pl is available.
+# 2. Update the PATH line below to point to your HOMER bin directory.
+# 3. Update HUMAN_FA and MOUSE_FA to your local genome FASTA files.
+#
+# This script uses local genome FASTA files as the HOMER genome argument
+# instead of HOMER's built-in genome shortcuts such as hg38 or mm10.
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
+# Repository-local input/output directories.
 ROOT="${REPO_ROOT}/data/Promoters_and_Enhancers"
 SPECIFIC="${ROOT}/Specific"
 CONSERVED="${ROOT}/Conserved"
 OUTROOT="${REPO_ROOT}/results/HOMER"
 
-HUMAN_FA="/ocean/projects/bio230007p/xli51/data/HumanGenomeInfo/hg38.fa"
-MOUSE_FA="/ocean/projects/bio230007p/xli51/data/MouseGenomeInfo/mm10.fa"
+# User-configurable local genome FASTA files.
+# Set these to the genome FASTA paths available in your environment.
+HUMAN_FA="/ocean/projects/bio230007p/ikaplow/HumanGenomeInfo/hg38.fa"
+MOUSE_FA="/ocean/projects/bio230007p/ikaplow/MouseGenomeInfo/mm10.fa"
 
 mkdir -p "${OUTROOT}"
 mkdir -p logs
 
+# User-configurable HOMER installation path.
+# You need to install HOMER yourself and update this PATH if needed.
 export PATH="/jet/home/xli51/repos/HOMER/bin:$PATH"
 
 echo "Host: $(hostname)"
@@ -45,6 +60,8 @@ run_homer () {
 
     mkdir -p "${outdir}"
 
+    # Here the second argument is a local genome FASTA path, not a short
+    # HOMER genome keyword.
     findMotifsGenome.pl \
         "${foreground}" \
         "${genome}" \

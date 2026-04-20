@@ -129,7 +129,6 @@ for FEATURE in enhancer promoter; do
         "$N_H_ORTH" "$(awk "BEGIN{printf \"%.1f\", $N_H_ORTH/$TOTAL_H*100}")"
     printf "  %-40s %6d  (%.1f%%)\n" "  Candidate human-specific:" \
         "$N_H_SPEC" "$(awk "BEGIN{printf \"%.1f\", $N_H_SPEC/$TOTAL_H*100}")"
-    echo "  (Note: human classification is inferential without H→M liftover)"
     echo ""
 done
 

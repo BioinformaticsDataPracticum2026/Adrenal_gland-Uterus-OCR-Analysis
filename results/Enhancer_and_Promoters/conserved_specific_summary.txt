@@ -12,7 +12,6 @@
   Total:                                   134099
     With mouse ortholog:                     4360  (3.3%)
     Candidate human-specific:              129739  (96.7%)
-  (Note: human classification is inferential without H→M liftover)
 
 ========================================
   Feature: adrenal promoter
@@ -28,7 +27,6 @@
   Total:                                    72666
     With mouse ortholog:                     8323  (11.5%)
     Candidate human-specific:               64343  (88.5%)
-  (Note: human classification is inferential without H→M liftover)
 
 Conserved output written to: /mnt/d/Bioinfo/Adrenal_gland-Uterus-OCR-Analysis/results/Enhancer_and_Promoters/Conserved
 Specific output written to: /mnt/d/Bioinfo/Adrenal_gland-Uterus-OCR-Analysis/results/Enhancer_and_Promoters/Specific

@@ -9,11 +9,14 @@ Team members: Xinyi L., Jimmy L., Yu Hsin C.
 This project compares open chromatin regions (OCRs) between adrenal gland and uterus in human and mouse ATAC-seq datasets. The current repository includes:
 
 - QC summaries for all four datasets
-- IDR conservative and optimal peak sets
+- IDR optimal peak sets
+- `rGREAT` functional enrichment analysis on optimal OCRs
+- Promoter/enhancer partitioning for adrenal gland OCRs
 - Cross-species OCR mapping with HAL/HALPER
 - Species-conserved and species-specific peak classification (Mouse→Human)
-- Local `rGREAT` functional enrichment analysis on optimal OCRs
-- Promoter/enhancer partitioning for adrenal gland OCRs
+- HOMER motif enrichment analysis for species-specific vs. conserved OCR subsets
+
+This pipeline was designed primarily for a SLURM-based Linux environment, especially for the HALPER and HOMER job-submission steps. At the same time, each stage can also be run independently by executing the corresponding script directly.
 
 Repository structure:
 
@@ -22,15 +25,22 @@ data/
   qc_html/                    ENCODE-style QC HTML reports
   idr_Conservative_Peaks/     conservative peak sets used for cross-species mapping
   idr_Optimal_Peaks/          optimal peak sets used for downstream analyses
-  halper_peaks/               Mouse→Human HALPER liftover outputs
   Promoters_and_Enhancers/    promoter/enhancer split peak sets and lifted results
 scripts/
-  1a-1c                       QC summary and peak counting scripts
-  2a-2b                       rGREAT enrichment and plotting scripts
-  3a-3b                       adrenal promoter/enhancer calling and HALPER mapping
-  4a                          species-conserved vs. species-specific peak classification
+  1a_qc_html_report.py        threshold-annotated QC HTML report generator
+  1b_make_qc_table.py         QC summary table builder and terminal summary printer
+  1c_count_peaks.sh           IDR conservative peak counting helper
+  2a_rGREAT.R                 rGREAT enrichment runner
+  2b_rGREAT_plot.R            rGREAT result plotting script
+  3a_call_adrenal_promoter_enhancer.sh
+                               promoter/enhancer partitioning for adrenal OCRs
+  3b_run_hal_promoter_enhancer.sh
+                               HALPER liftover submission script
+  4a_classify_conserved_peaks.sh
+                               conserved vs. species-specific peak classification
+  5a_run_HOMER.sh             HOMER motif enrichment script
 results/
-  qc/                         QC tables and interpretation
+  qc/                         QC tables, checked HTML reports, and interpretation
   rGREAT/                     GO enrichment tables and dot plots
   Enhancer_and_Promoters/     adrenal promoter/enhancer summary and conserved/specific peak calls
   HOMER/                      motif enrichment results for all four specific-vs-conserved comparisons
@@ -38,16 +48,142 @@ results/
 
 ## Dependencies
 
-The analyses in this repository depend on the following software and packages:
+The analyses in this repository depend on the following software and resources:
 
-- `Python 3` for QC summary scripts
-- `R` for functional enrichment and plotting
-- R packages: `rGREAT`, `GenomicRanges`, `IRanges`, `ggplot2`
-- `bedtools` for promoter/enhancer partitioning and peak classification
-- `HALPER` and `halLiftover` for cross-species OCR mapping
-- access to the multi-species HAL alignment file `10plusway-master.hal`
-- a SLURM environment for submitting the HAL/HALPER jobs in `scripts/3b_run_hal_promoter_enhancer.sh`
-- `HOMER` for motif enrichment analysis, with `hg38` and `mm10` genome packages installed
+- `Python 3.11` 
+- `R` for `rGREAT` analysis and plotting, R packages: `rGREAT`, `GenomicRanges`, `IRanges`, `ggplot2`
+- `bedtools` for promoter/enhancer partitioning and conserved/specific peak classification
+- `HAL` / `halLiftover` for working with multi-species genome alignments
+- `HALPER` for cross-species OCR mapping post-processing
+- `HOMER` for motif enrichment analysis
+- local genome FASTA files such as `hg38.fa` and `mm10.fa`
+- TSS annotation BED files for human and mouse
+- access to a multi-species `.hal` alignment file
+
+Optional but recommended for the full workflow:
+
+- a Linux environment
+- a `conda` installation for managing Python, R, and command-line dependencies
+- a SLURM environment for the job-submission scripts `scripts/3b_run_hal_promoter_enhancer.sh` and `scripts/5a_run_HOMER.sh`
+
+## Quick Start
+
+The instructions below assume you are running in a Linux environment.
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/BioinformaticsDataPracticum2026/Adrenal_gland-Uterus-OCR-Analysis.git
+cd Adrenal_gland-Uterus-OCR-Analysis
+```
+
+### 2. Create and activate a conda environment
+
+The Python scripts in this repository currently use only the Python standard library, so there is no required `requirements.txt` at the moment. We recommend using a conda environment to keep the Python, R, and command-line dependencies together.
+
+```bash
+conda create -n adrenal-ocr-analysis -c conda-forge -c bioconda \
+  python=3.11 \
+  pip \
+  r-base \
+  bedtools \
+  openjdk \
+  -y
+
+conda activate adrenal-ocr-analysis
+```
+
+### 3. Install analysis dependencies
+
+Install the required R packages:
+
+```bash
+Rscript -e 'install.packages("BiocManager", repos="https://cloud.r-project.org")'
+Rscript -e 'BiocManager::install(c("rGREAT", "GenomicRanges", "IRanges"), ask=FALSE, update=FALSE)'
+Rscript -e 'install.packages("ggplot2", repos="https://cloud.r-project.org")'
+```
+
+Install HALPER and the post-processing helper script:
+
+```bash
+git clone https://github.com/pfenninglab/halLiftover-postprocessing.git
+```
+
+Install HOMER:
+
+```bash
+git clone http://homer.ucsd.edu/homer.git
+cd homer
+perl configureHomer.pl -install
+cd ..
+```
+
+For `HAL` / `halLiftover`, use the official project instructions:
+
+- HAL / halLiftover: https://github.com/ComparativeGenomicsToolkit/hal
+- HALPER post-processing: https://github.com/pfenninglab/halLiftover-postprocessing
+- HOMER: http://homer.ucsd.edu/homer/
+- bedtools: https://bedtools.readthedocs.io/
+- Bioconductor `rGREAT`: https://bioconductor.org/packages/rGREAT/
+- Bioconductor `GenomicRanges`: https://bioconductor.org/packages/GenomicRanges/
+- Bioconductor `IRanges`: https://bioconductor.org/packages/IRanges/
+- `ggplot2`: https://ggplot2.tidyverse.org/
+
+### 4. Configure local paths for external resources
+
+Some scripts use repository-relative input/output paths, but still require external resources that you must provide in your environment. The current repository already includes part of the initial input data and several intermediate results, so some scripts can be run directly without reproducing every upstream step from scratch.
+
+Update these variables before running the corresponding scripts:
+
+- `scripts/3a_call_adrenal_promoter_enhancer.sh`
+  - `HUMAN_TSS`
+  - `HUMAN_GENOME_INDEX`
+  - `MOUSE_TSS`
+  - `MOUSE_GENOME_INDEX`
+- `scripts/3b_run_hal_promoter_enhancer.sh`
+  - `HALPER_SCRIPT`
+  - `HAL`
+- `scripts/5a_run_HOMER.sh`
+  - `HUMAN_FA`
+  - `MOUSE_FA`
+  - the `export PATH=.../HOMER/bin:$PATH` line
+
+### 5. Run the pipeline
+
+From the repository root:
+
+```bash
+# QC: annotate the QC HTML reports and build the QC summary table
+python scripts/1a_qc_html_report.py && python scripts/1b_make_qc_table.py --print-summary
+
+# Optional: count IDR conservative peaks
+bash scripts/1c_count_peaks.sh
+
+# Functional enrichment and plots
+Rscript scripts/2a_rGREAT.R
+Rscript scripts/2b_rGREAT_plot.R
+
+# Partition adrenal OCRs into promoter and enhancer sets
+bash scripts/3a_call_adrenal_promoter_enhancer.sh
+
+# Submit HALPER liftover jobs
+sbatch scripts/3b_run_hal_promoter_enhancer.sh
+
+# Classify conserved and species-specific peaks
+bash scripts/4a_classify_conserved_peaks.sh
+
+# Run HOMER motif enrichment
+sbatch scripts/5a_run_HOMER.sh
+```
+
+### 6. Check outputs
+
+Main outputs are written to:
+
+- `results/qc/`
+- `results/rGREAT/`
+- `results/Enhancer_and_Promoters/`
+- `results/HOMER/`
 
 ## 1. Evaluate data quality
 
@@ -87,11 +223,9 @@ python scripts/1a_qc_html_report.py && python scripts/1b_make_qc_table.py --prin
 - `IDR Optimal Peaks` / `IDR Conservative Peaks`
 - `NRF`, `PBC1`, and `PBC2` for each replicate
 
-## 2. Find biological processes that are likely to be regulated by open chromatin regions
+## 2. Find biological processes that are likely to be regulated by open chromatin regions by rGREAT
 
 We used local `rGREAT` analysis on the IDR optimal peaks in `data/idr_Optimal_Peaks`, and generated GO enrichment tables and dot plots for all four datasets.
-
-Relevant scripts:
 
 - `scripts/2a_rGREAT.R`: runs local `rGREAT` on each optimal peak set for `GO:BP`, `GO:CC`, and `GO:MF`
 - `scripts/2b_rGREAT_plot.R`: creates dot plots from each enrichment table
@@ -119,10 +253,6 @@ Each sample directory contains:
 - `rGREAT_BP.tsv`, `rGREAT_CC.tsv`, `rGREAT_MF.tsv`
 - corresponding dot plot PNG files
 
-Current interpretation:
-
-These GO terms are standard Gene Ontology categories enriched from genes linked to OCR regions. Most of the enriched terms are broad functions such as gene expression, biosynthetic and metabolic processes, and general regulation. The results currently lack strong tissue-specific signals, suggesting that enrichment is dominated by housekeeping functions rather than adrenal- or uterus-specific pathways. The relatively modest fold enrichment also suggests limited specificity, so more refined peak-to-gene mapping or more targeted OCR subsets would likely improve biological interpretability.
-
 ## 3. Compare candidate enhancers to candidate promoters
 
 Adrenal gland optimal OCRs were partitioned into promoter-proximal and enhancer-like sets using a 2 kb window around annotated TSSs.
@@ -142,7 +272,19 @@ bash scripts/3a_call_adrenal_promoter_enhancer.sh
 sbatch scripts/3b_run_hal_promoter_enhancer.sh
 ```
 
-**Note:** `scripts/3a_call_adrenal_promoter_enhancer.sh` contains paths hardcoded to PSC Bridges-2 project directories for peak files and genome index files. Update the input paths before running in a different environment. `scripts/3b_run_hal_promoter_enhancer.sh` similarly requires the HAL alignment file (`10plusway-master.hal`) accessible at the configured path.
+`3a_call_adrenal_promoter_enhancer.sh` now reads adrenal optimal peak files from `data/idr_Optimal_Peaks/` using repo-relative paths and writes promoter/enhancer BED files to `data/Promoters_and_Enhancers/`.
+
+Before running `3a_call_adrenal_promoter_enhancer.sh`, you still need to provide the external annotation and genome index files by setting:
+
+- `HUMAN_TSS`
+- `HUMAN_GENOME_INDEX`
+- `MOUSE_TSS`
+- `MOUSE_GENOME_INDEX`
+
+`3b_run_hal_promoter_enhancer.sh` uses the repository-local peak files in `data/Promoters_and_Enhancers/`, but `HALPER` and the `.hal` alignment file are still external dependencies. Before running it, update:
+
+- `HALPER_SCRIPT` to your local `halper_map_peak_orthologs.sh`
+- `HAL` to your local multi-species `.hal` alignment file
 
 Intermediate and output files are stored in `data/Promoters_and_Enhancers/`.
 
@@ -178,14 +320,7 @@ results/Enhancer_and_Promoters/Specific/
 results/Enhancer_and_Promoters/conserved_specific_summary.txt
 ```
 
-Current summary from `results/Enhancer_and_Promoters/conserved_specific_summary.txt`:
-
-- Mouse adrenal enhancer: 21,158 total peaks, 6,442 lifted to human, 2,516 conserved (11.9%), 18,642 mouse-specific (88.1%)
-- Human adrenal enhancer: 134,099 total peaks, 4,360 with mouse ortholog (3.3%), 129,739 candidate human-specific (96.7%)
-- Mouse adrenal promoter: 27,105 total peaks, 3,533 lifted to human, 2,727 conserved (10.1%), 24,378 mouse-specific (89.9%)
-- Human adrenal promoter: 72,666 total peaks, 8,323 with mouse ortholog (11.5%), 64,343 candidate human-specific (88.5%)
-
-## 5. Find transcription factors that tend to bind open chromatin regions
+## 5. Find transcription factors that tend to bind open chromatin regions using HOMER
 
 We used `HOMER` motif enrichment to compare species-specific adrenal OCR subsets against conserved OCR subsets as background. This analysis was run separately for promoter and enhancer peaks in human and mouse.
 
@@ -196,10 +331,11 @@ Foreground and background sets:
 - mouse adrenal enhancer specific vs. mouse adrenal enhancer conserved
 - mouse adrenal promoter specific vs. mouse adrenal promoter conserved
 
-The script is configured for the PSC cluster environment and currently uses:
+The script is configured to use repository-relative BED inputs together with local genome FASTA files as the HOMER genome argument:
 
-- absolute project paths under `/ocean/projects/bio230007p/xli51/repo/Adrenal_gland-Uterus-OCR-Analysis/`
-- FASTA files `hg38.fa` and `mm10.fa` as the HOMER genome argument
+- `data/Promoters_and_Enhancers/Specific/`
+- `data/Promoters_and_Enhancers/Conserved/`
+- local FASTA files such as `hg38.fa` and `mm10.fa`
 - `-size given`
 - `-mask`
 - the matched conserved set as `-bg`
@@ -208,14 +344,14 @@ The script is configured for the PSC cluster environment and currently uses:
 To run on the cluster:
 
 ```bash
-sbatch scripts/5_run_HOMER.sh
+sbatch scripts/5a_run_HOMER.sh
 ```
 
-**Note:** Before running in a different environment, update the following variables in `scripts/5_run_HOMER.sh`:
-- `ROOT` — path to the directory containing the `Specific/` and `Conserved/` subdirectories
-- `OUTROOT` — path to the desired output directory
+**Note:** Before running in a different environment, update the following variables in `scripts/5a_run_HOMER.sh`:
 - `HUMAN_FA` / `MOUSE_FA` — paths to the `hg38.fa` and `mm10.fa` genome FASTA files
-- The `export PATH` line — path to the HOMER `bin/` directory on your system
+- the `export PATH` line — path to the HOMER `bin/` directory on your system
+
+`5a_run_HOMER.sh` expects you to install HOMER yourself. It uses local genome FASTA file paths as the second argument to `findMotifsGenome.pl`, rather than HOMER's built-in short genome names.
 
 Results are written to:
 
@@ -228,12 +364,11 @@ results/HOMER/mouse_promoter_specific_vs_conserved/
 
 Each output directory contains the standard HOMER motif enrichment reports for known and de novo motifs, along with the corresponding log files in `logs/`.
 
-Current results summary:
+## Authors
 
-- Human adrenal enhancer-specific vs. conserved: top enriched mammalian motifs are nuclear receptor family members — RARγ, Nr5a2/LRH-1, SF-1/NR5A1, RAR:RXR, RORα, and RORγt. REST/NRSF (neural gene repressor) is the top overall hit. SF-1/NR5A1 is the master regulator of adrenal cortex development and steroidogenesis.
-- Human adrenal promoter-specific vs. conserved: the glucocorticoid response element (GRE) is the top enriched motif (p = 1×10⁻⁷⁹), followed by p53, Brn2/POU, and SF-1/NR5A1. GRE enrichment is directly consistent with adrenal cortex identity as the primary site of glucocorticoid synthesis.
-- Mouse adrenal enhancer-specific vs. conserved: dominated by ETS family transcription factors (ERG, EHF, ETV1, ETS1, Fli1, GABPA, and others). ETV1 has documented expression in adrenal medulla chromaffin cells.
-- Mouse adrenal promoter-specific vs. conserved: top hits are AP-2γ/TFAP2C and AP-2α/TFAP2A (neural crest TFs with established adrenal roles), followed by RARα, THRβ, the androgen receptor half-site, Nkx2.2, and Smad4.
+Xinyi Li <xinyili3@andrew.cmu.edu>,
+Jimmy Lee <jimmylee@andrew.cmu.edu>,
+Yu Hsin Chen <heather4@andrew.cmu.edu>
 
 ## Citations
 
