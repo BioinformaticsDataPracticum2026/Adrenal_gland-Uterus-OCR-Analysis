@@ -32,8 +32,8 @@ scripts/
 results/
   qc/                         QC tables and interpretation
   rGREAT/                     GO enrichment tables and dot plots
-  Enhancer_and_Promoters/     adrenal promoter/enhancer summary
-  peak_classification/        conserved and species-specific peak calls
+  Enhancer_and_Promoters/     adrenal promoter/enhancer summary and conserved/specific peak calls
+  HOMER/                      motif enrichment results for all four specific-vs-conserved comparisons
 ```
 
 ## Dependencies
@@ -63,6 +63,27 @@ Relevant scripts:
 - `scripts/1b_extract_qc_metrics.py`: extracts key QC metrics from ENCODE ATAC-seq outputs
 - `scripts/1c_count_peaks.sh`: counts reproducible IDR conservative peaks
 
+To run:
+
+```bash
+# Extract TSS enrichment, FRiP, and library complexity metrics
+python scripts/1b_extract_qc_metrics.py
+
+# Build combined QC summary table (provide paths to each dataset's qc.json)
+python scripts/1a_make_qc_table.py \
+    --human-adrenal <path/to/human_adrenal/qc.json> \
+    --mouse-adrenal <path/to/mouse_adrenal/qc.json> \
+    --human-uterus  <path/to/human_uterus/qc.json> \
+    --mouse-uterus  <path/to/mouse_uterus/qc.json> \
+    --out-tsv results/qc/qc_summary_table.tsv \
+    --out-md  results/qc/qc_summary_table.md
+
+# Count IDR conservative peaks for all four datasets
+bash scripts/1c_count_peaks.sh
+```
+
+**Note:** `scripts/1b_extract_qc_metrics.py` and `scripts/1c_count_peaks.sh` contain paths hardcoded to the PSC Bridges-2 project directory. Update these paths before running in a different environment.
+
 Summary of the current QC conclusion:
 
 - Human adrenal: strongest overall signal, with TSS enrichment 19.19 and 20.39, pooled FRiP 0.565, and 150,470 conservative peaks
@@ -80,6 +101,15 @@ Relevant scripts:
 
 - `scripts/2a_rGREAT.R`: runs local `rGREAT` on each optimal peak set for `GO:BP`, `GO:CC`, and `GO:MF`
 - `scripts/2b_rGREAT_plot.R`: creates dot plots from each enrichment table
+
+To run (from the repository root, with peak files present in `data/idr_Optimal_Peaks/`):
+
+```bash
+Rscript scripts/2a_rGREAT.R
+Rscript scripts/2b_rGREAT_plot.R
+```
+
+`2a_rGREAT.R` reads narrowPeak files from `data/idr_Optimal_Peaks/` using repo-relative paths and writes enrichment TSV files to `results/rGREAT/`. `2b_rGREAT_plot.R` reads those TSV files and saves dot plot PNGs alongside them. Each dot plot shows the top 20 GO terms ranked by adjusted p-value, with point size proportional to the number of region hits and color indicating -log10(adjusted p-value).
 
 Results are stored in `results/rGREAT/`, with one directory per sample:
 
@@ -107,6 +137,18 @@ Relevant scripts:
 
 - `scripts/3a_call_adrenal_promoter_enhancer.sh`: creates promoter and enhancer peak sets with `bedtools`
 - `scripts/3b_run_hal_promoter_enhancer.sh`: maps adrenal promoter and enhancer sets across species with HALPER
+
+To run:
+
+```bash
+# Partition optimal peaks into promoter-proximal and enhancer-like sets
+bash scripts/3a_call_adrenal_promoter_enhancer.sh
+
+# Submit HALPER liftover job to the cluster
+sbatch scripts/3b_run_hal_promoter_enhancer.sh
+```
+
+**Note:** `scripts/3a_call_adrenal_promoter_enhancer.sh` contains paths hardcoded to PSC Bridges-2 project directories for peak files and genome index files. Update the input paths before running in a different environment. `scripts/3b_run_hal_promoter_enhancer.sh` similarly requires the HAL alignment file (`10plusway-master.hal`) accessible at the configured path.
 
 Intermediate and output files are stored in `data/Promoters_and_Enhancers/`.
 
@@ -174,6 +216,12 @@ To run on the cluster:
 ```bash
 sbatch scripts/5_run_HOMER.sh
 ```
+
+**Note:** Before running in a different environment, update the following variables in `scripts/5_run_HOMER.sh`:
+- `ROOT` — path to the directory containing the `Specific/` and `Conserved/` subdirectories
+- `OUTROOT` — path to the desired output directory
+- `HUMAN_FA` / `MOUSE_FA` — paths to the `hg38.fa` and `mm10.fa` genome FASTA files
+- The `export PATH` line — path to the HOMER `bin/` directory on your system
 
 Results are written to:
 
