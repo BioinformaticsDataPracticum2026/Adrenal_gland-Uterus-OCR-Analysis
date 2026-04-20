@@ -17,6 +17,7 @@ import json
 import argparse
 import csv
 import sys
+from pathlib import Path
 
 DATASETS = [
     ("Human Adrenal", "human_adrenal", True),
@@ -24,6 +25,9 @@ DATASETS = [
     ("Human Uterus",  "human_uterus",  False),
     ("Mouse Uterus",  "mouse_uterus",  False),
 ]
+
+SCRIPT_DIR = Path(__file__).resolve().parent
+REPO_ROOT = SCRIPT_DIR.parent
 
 def safe_get(d, *keys, default="N/A", digits=4):
     """Navigate nested dict safely; round floats if found."""
@@ -133,6 +137,7 @@ def build_rows(paths):
     return rows, [label for label, _, _ in DATASETS]
 
 def write_tsv(rows, col_order, path):
+    path.parent.mkdir(parents=True, exist_ok=True)
     fieldnames = ["Metric"] + col_order
     with open(path, "w", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames, delimiter="\t")
@@ -141,6 +146,7 @@ def write_tsv(rows, col_order, path):
     print(f"TSV written to {path}")
 
 def write_markdown(rows, col_order, path):
+    path.parent.mkdir(parents=True, exist_ok=True)
     cols = ["Metric"] + col_order
     header = "| " + " | ".join(cols) + " |"
     sep    = "| " + " | ".join(["---"] * len(cols)) + " |"
@@ -157,8 +163,8 @@ def main():
     parser.add_argument("--mouse-adrenal", dest="mouse_adrenal", metavar="QC_JSON")
     parser.add_argument("--human-uterus",  dest="human_uterus",  metavar="QC_JSON")
     parser.add_argument("--mouse-uterus",  dest="mouse_uterus",  metavar="QC_JSON")
-    parser.add_argument("--out-tsv", default="results/qc_summary_table.tsv")
-    parser.add_argument("--out-md",  default="results/qc_summary_table.md")
+    parser.add_argument("--out-tsv", type=Path, default=REPO_ROOT / "results" / "qc_summary_table.tsv")
+    parser.add_argument("--out-md",  type=Path, default=REPO_ROOT / "results" / "qc_summary_table.md")
     args = parser.parse_args()
 
     paths = {

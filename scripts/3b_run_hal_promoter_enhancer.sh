@@ -1,11 +1,16 @@
 #!/usr/bin/env bash
 
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+
 mkdir -p logs
 
 HALPER_SCRIPT=/jet/home/xli51/repos/halLiftover-postprocessing/halper_map_peak_orthologs.sh
 HAL=/ocean/projects/bio230007p/ikaplow/Alignments/10plusway-master.hal
 
-DATADIR=/ocean/projects/bio230007p/xli51/repo/Adrenal_gland-Uterus-OCR-Analysis/data/Promoters_and_Enhancers
+DATADIR="$REPO_ROOT/data/Promoters_and_Enhancers"
 OUTDIR=$DATADIR
 
 ########################################

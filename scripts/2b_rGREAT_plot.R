@@ -1,11 +1,21 @@
 library(ggplot2)
 
+args <- commandArgs(trailingOnly = FALSE)
+script_arg <- grep("^--file=", args, value = TRUE)
+script_path <- if (length(script_arg) > 0) {
+  normalizePath(sub("^--file=", "", script_arg[[1]]), winslash = "/", mustWork = FALSE)
+} else {
+  normalizePath("scripts/2b_rGREAT_plot.R", winslash = "/", mustWork = FALSE)
+}
+script_dir <- dirname(script_path)
+repo_root <- normalizePath(file.path(script_dir, ".."), winslash = "/", mustWork = FALSE)
+
 input_tasks <- data.frame(
   input_dir = c(
-    "results/rGREAT/Human_AdrenalGland_idr.optimal_peak",
-    "results/rGREAT/Human_Uterus_idr.optimal_peak",
-    "results/rGREAT/Mouse_AdrenalGland_idr.optimal_peak",
-    "results/rGREAT/Mouse_Uterus_idr.optimal_peak"
+    file.path(repo_root, "results", "rGREAT", "Human_AdrenalGland_idr.optimal_peak"),
+    file.path(repo_root, "results", "rGREAT", "Human_Uterus_idr.optimal_peak"),
+    file.path(repo_root, "results", "rGREAT", "Mouse_AdrenalGland_idr.optimal_peak"),
+    file.path(repo_root, "results", "rGREAT", "Mouse_Uterus_idr.optimal_peak")
   ),
   task_name = c(
     "Human_AdrenalGland",

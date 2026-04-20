@@ -2,18 +2,28 @@ library(rGREAT)
 library(GenomicRanges)
 library(IRanges)
 
+args <- commandArgs(trailingOnly = FALSE)
+script_arg <- grep("^--file=", args, value = TRUE)
+script_path <- if (length(script_arg) > 0) {
+  normalizePath(sub("^--file=", "", script_arg[[1]]), winslash = "/", mustWork = FALSE)
+} else {
+  normalizePath("scripts/2a_rGREAT.R", winslash = "/", mustWork = FALSE)
+}
+script_dir <- dirname(script_path)
+repo_root <- normalizePath(file.path(script_dir, ".."), winslash = "/", mustWork = FALSE)
+
 peak_inputs <- data.frame(
   peak_file = c(
-    "data/idr_Optimal_Peaks/Human_AdrenalGland_idr.optimal_peak.narrowPeak",
-    "data/idr_Optimal_Peaks/Human_Uterus_idr.optimal_peak.narrowPeak",
-    "data/idr_Optimal_Peaks/Mouse_AdrenalGland_idr.optimal_peak.narrowPeak",
-    "data/idr_Optimal_Peaks/Mouse_Uterus_idr.optimal_peak.narrowPeak"
+    file.path(repo_root, "data", "idr_Optimal_Peaks", "Human_AdrenalGland_idr.optimal_peak.narrowPeak"),
+    file.path(repo_root, "data", "idr_Optimal_Peaks", "Human_Uterus_idr.optimal_peak.narrowPeak"),
+    file.path(repo_root, "data", "idr_Optimal_Peaks", "Mouse_AdrenalGland_idr.optimal_peak.narrowPeak"),
+    file.path(repo_root, "data", "idr_Optimal_Peaks", "Mouse_Uterus_idr.optimal_peak.narrowPeak")
   ),
   genome = c("hg38", "hg38", "mm10", "mm10"),
   stringsAsFactors = FALSE
 )
 
-output_dir <- "results/rGREAT"
+output_dir <- file.path(repo_root, "results", "rGREAT")
 
 dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
 

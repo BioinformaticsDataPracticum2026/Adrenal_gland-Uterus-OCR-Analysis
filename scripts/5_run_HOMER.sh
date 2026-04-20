@@ -10,10 +10,13 @@
 
 set -euo pipefail
 
-ROOT="/ocean/projects/bio230007p/xli51/repo/Adrenal_gland-Uterus-OCR-Analysis/data/Promoters_and_Enhancers"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+ROOT="${REPO_ROOT}/data/Promoters_and_Enhancers"
 SPECIFIC="${ROOT}/Specific"
 CONSERVED="${ROOT}/Conserved"
-OUTROOT="/ocean/projects/bio230007p/xli51/repo/Adrenal_gland-Uterus-OCR-Analysis/results/HOMER"
+OUTROOT="${REPO_ROOT}/results/HOMER"
 
 HUMAN_FA="/ocean/projects/bio230007p/xli51/data/HumanGenomeInfo/hg38.fa"
 MOUSE_FA="/ocean/projects/bio230007p/xli51/data/MouseGenomeInfo/mm10.fa"
