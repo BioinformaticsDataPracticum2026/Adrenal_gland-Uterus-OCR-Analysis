@@ -81,17 +81,11 @@ cd Adrenal_gland-Uterus-OCR-Analysis
 
 The Python scripts in this repository currently use only the Python standard library, so there is no required `requirements.txt` at the moment. We recommend using a conda environment to keep the Python, R, and command-line dependencies together.
 
-```bash
-conda create -n adrenal-ocr-analysis -c conda-forge -c bioconda \
-  python=3.11 \
-  pip \
-  r-base \
-  bedtools \
-  openjdk \
-  -y
-
-conda activate adrenal-ocr-analysis
-```
+  ```bash
+  conda create -n adrenal-ocr-analysis python=3.11 -y
+  conda activate adrenal-ocr-analysis
+  conda install -c conda-forge -c bioconda pip r-base bedtools -y
+  ```
 
 ### 3. Install analysis dependencies
 
