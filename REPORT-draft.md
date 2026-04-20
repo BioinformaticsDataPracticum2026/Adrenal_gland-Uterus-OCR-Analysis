@@ -12,7 +12,7 @@ Here, we designed a multi-step pipeline to characterize and compare OCRs between
 
 ### Data
 
-TODO (check data resources)
+Human adrenal gland ATAC-seq data were obtained from ENCODE (https://www.encodeproject.org/) under accessions ENCSR241OBO and ENCSR864ADD. Human uterus ATAC-seq data were obtained from ENCODE under accessions ENCSR775SYU and ENCSR705RZX. Mouse adrenal gland and uterus ATAC-seq data were obtained from Liu et al. (2019), which provides a chromatin accessibility atlas across mouse tissues generated using ATAC-seq. IDR peak calls from these datasets were used for all downstream analyses.
 
 ### Quality Control Assessment
 
@@ -66,22 +66,56 @@ Taken together, the results indicate limited overlap under the current one-direc
 
 ### Motif Enrichment of Adrenal Enhancers and Promoters
 
-TODO (waiting for results)
+HOMER motif enrichment identified distinct transcription factor binding signatures between species-specific and conserved adrenal OCR subsets, with notable differences between enhancer and promoter compartments and between human and mouse.
+
+**Human enhancer-specific versus conserved.** Among the top enriched known motifs in human-specific enhancers, the most significant mammalian hits were dominated by nuclear receptor (NR) superfamily members: RARγ (p = 1×10⁻⁴², NR), Nr5a2/LRH-1 (p = 1×10⁻³⁶, NR), SF-1/NR5A1 (p = 1×10⁻²², NR), RAR:RXR DR0 (p = 1×10⁻¹⁸, NR), RORα (p = 1×10⁻¹⁷, NR), and RORγt (p = 1×10⁻¹⁴, NR). The REST/NRSF zinc finger motif ranked first overall (p = 1×10⁻¹⁴²); REST is a transcriptional repressor with roles in neural gene regulation relevant to the neural crest-derived adrenal medulla. SF-1/NR5A1 is a master regulator of adrenal cortex development and steroidogenesis, and its enrichment in human-specific enhancers suggests divergent transcriptional control of adrenal cortical programs between species. Retinoic acid receptor motifs (RARγ, RAR:RXR) have documented roles in adrenal development and differentiation. Several entries matching plant or insect transcription factors (DREF, WRKY8, EIN3) ranked among the top overall hits; these likely reflect cross-reactive sequence features shared between distantly related TF families rather than genuine biological signal, and are not interpreted further.
+
+**Human promoter-specific versus conserved.** The single most enriched motif in human-specific promoters was the glucocorticoid response element (GRE/NR IR3, p = 1×10⁻⁷⁹), followed by p53 (p = 1×10⁻⁵⁹), Brn2/POU (p = 1×10⁻⁵³), SF-1/NR5A1 (p = 1×10⁻⁴⁵), Fos/AP-1 (p = 1×10⁻¹³), and GATA (p = 1×10⁻¹³). The GRE as the top enriched motif in human-specific promoters is directly consistent with adrenal cortex identity: the adrenal cortex is the primary site of glucocorticoid synthesis, and glucocorticoid receptor binding sites are a defining feature of cortical gene regulation. Brn2 is a POU-domain transcription factor expressed in neuroendocrine and neural crest-derived cells including the adrenal medulla. SF-1 appearing prominently at both enhancers and promoters underscores its central regulatory role across both compartments. As in the enhancer comparison, several non-mammalian TF entries appeared in the top results and were not considered for biological interpretation.
+
+**Mouse enhancer-specific versus conserved.** Mouse-specific enhancers showed a markedly different profile. The top enriched motifs were almost entirely from the ETS transcription factor family: ERG (p = 1×10⁻⁴⁴⁶), EHF (p = 1×10⁻⁴²⁰), ETV2 (p = 1×10⁻³⁸⁸), ETS1 (p = 1×10⁻³⁷⁸), ETV1 (p = 1×10⁻³⁶⁶), Elf4 (p = 1×10⁻³⁵⁸), Fli1 (p = 1×10⁻³⁵³), ETV4 (p = 1×10⁻³³³), GABPA (p = 1×10⁻²⁸⁴), and ELF5 (p = 1×10⁻²⁷³). ETS factors are broadly involved in regulating chromatin accessibility and lineage identity. ETV1 in particular has documented expression in adrenal medulla chromaffin cells and catecholaminergic neurons. The near-exclusive dominance of a single transcription factor family across the top enriched motifs suggests that ETS-driven regulatory programs may define a substantial portion of the mouse-specific adrenal enhancer landscape.
+
+**Mouse promoter-specific versus conserved.** Mouse-specific promoters were enriched for AP-2 family factors as the strongest hits: AP-2γ/TFAP2C (p = 1×10⁻⁷³⁵) and AP-2α/TFAP2A (p = 1×10⁻⁶⁷⁵). AP-2 transcription factors are canonical markers of neural crest-derived tissues and have established roles in adrenal gland development. Additional highly enriched motifs included RARα (p = 1×10⁻⁶⁸⁰), thyroid hormone receptor THRβ (p = 1×10⁻⁶⁷⁵), the androgen receptor half-site (AR, p = 1×10⁻⁶⁶⁰), Tbx5 (p = 1×10⁻⁶⁵⁹), Nkx2.2 (p = 1×10⁻⁵⁹⁷), and Smad4 (p = 1×10⁻⁵⁸⁶). The thyroid-adrenal hormonal axis is well established, and AR-driven regulation is consistent with adrenal androgen production. Nkx2.2 is a homeodomain factor involved in neuroendocrine differentiation. Smad4 implicates TGF-β/BMP signaling in the regulatory divergence of mouse-specific promoters. The exceptionally strong enrichment p-values in this comparison suggest a pronounced divergence in the transcriptional regulatory logic governing mouse-specific adrenal promoters relative to conserved ones.
+
+Across all four comparisons, the results point to distinct and biologically interpretable transcription factor programs associated with species-specific adrenal regulatory elements. Nuclear receptor signaling—particularly adrenal-relevant receptors including SF-1, GR, and RAR family members—is enriched in human-specific regulatory elements, while ETS and AP-2 family programs are more prominent in mouse-specific elements.
 
 ## Discussion
 
-TODO
+This project characterized and compared open chromatin regions in adrenal gland and uterus across human and mouse, applying a multi-step pipeline from quality control through motif enrichment. The results reveal biologically coherent patterns of cross-species regulatory conservation and divergence, while also exposing several analytical constraints that should be considered when interpreting the findings.
+
+**Tissue prioritization and data quality.** The decision to focus downstream cross-species and motif analyses on adrenal gland was supported by consistent differences in data quality. Adrenal gland exhibited higher TSS enrichment, higher pooled FRiP, and greater peak reproducibility in both species. Mouse uterus in particular showed TSS enrichment near the lower boundary of acceptable quality, making cross-species comparisons for that tissue less reliable. Restricting the detailed analysis to adrenal gland therefore improves interpretability at the cost of a narrower comparative scope.
+
+**Conservation rates and enhancer turnover.** Under the current one-directional Mouse-to-Human framework, approximately 10–12% of lifted mouse adrenal peaks were classified as conserved, with enhancers showing a slightly lower conservation rate than promoters (11.9% versus 10.1% for mouse-side peaks). Although these absolute values are sensitive to alignment stringency and overlap threshold, the directional pattern is consistent with the established view that enhancers undergo more rapid evolutionary turnover than promoters. Prior genome-wide comparative studies across mammalian lineages have documented this asymmetry and attributed it to the combinatorial and modular nature of enhancer architecture relative to the more constrained sequence environment around transcription start sites (Villar et al., 2015; Stergachis et al., 2014; Carelli et al., 2018). The relatively low promoter conservation rate in this dataset likely reflects both genuine divergence and technical factors, including the limitations of one-directional liftover discussed below.
+
+**Transcription factor programs in human-specific regulatory elements.** The motif enrichment results for human-specific OCRs are among the most biologically informative findings of this project. In both enhancer and promoter compartments, human-specific regions are enriched for nuclear receptor binding motifs with direct relevance to adrenal function. SF-1/NR5A1, a master transcriptional regulator of adrenal cortex development and steroidogenesis, appeared among the top enriched motifs in both human-specific enhancers and promoters. The glucocorticoid response element ranked as the single most enriched motif in human-specific promoters, consistent with the adrenal cortex as the primary site of glucocorticoid synthesis. Retinoic acid receptors and ROR family members also appeared across multiple comparisons. These findings suggest that human-specific adrenal regulatory elements are particularly enriched for transcriptional programs governing cortical steroidogenesis and hormone-responsive gene regulation, and that this regulatory architecture has diverged from that of mouse.
+
+**Transcription factor programs in mouse-specific regulatory elements.** Mouse-specific regulatory elements showed a markedly different motif profile. Mouse-specific enhancers were dominated by ETS family transcription factors, which function broadly as regulators of chromatin accessibility and lineage identity. ETV1, a top-ranked ETS factor, has documented expression in adrenal medulla chromaffin cells and catecholaminergic neurons, suggesting that ETS-driven programs may reflect divergent regulation of the medullary compartment in mouse. Mouse-specific promoters were strongly enriched for AP-2 family motifs (TFAP2C, TFAP2A), which are canonical neural crest transcription factors with established roles in adrenal gland development. Additional enriched motifs including THRβ, the androgen receptor half-site, Nkx2.2, and Smad4 suggest further divergence in developmental and endocrine gene regulatory programs between species.
+
+**Limitations.** Several analytical decisions constrain the interpretation of these results. First, the cross-species comparison was one-directional: only Mouse-to-Human HALPER outputs were available, so peaks classified as candidate human-specific may include regions that would be recovered as conserved under reciprocal Human-to-Mouse mapping. The fraction of truly human-specific OCRs is therefore likely overestimated. Second, the rGREAT functional enrichment analysis was performed on whole-dataset optimal peak sets rather than on the stratified conserved and species-specific subsets identified in later pipeline steps; enrichment on stratified subsets would likely yield more interpretable and tissue-specific ontology terms. Third, the promoter classification used a fixed ±2 kb window around annotated TSSs, which is a standard but approximate approach that does not account for alternative TSSs or tissue-specific promoter isoforms. Finally, all datasets represent bulk ATAC-seq from whole tissue, encompassing contributions from adrenal cortex, adrenal medulla, and stromal cell populations. Cell-type-resolved accessibility data would be needed to assign the observed regulatory programs to specific adrenal compartments.
+
+Despite these limitations, the results provide a coherent picture of divergent adrenal regulatory architecture between human and mouse. Nuclear receptor signaling programs are concentrated in human-specific regulatory elements, while ETS and AP-2-driven programs are prominent in mouse-specific elements. These patterns are consistent with known adrenal biology and motivate future analyses incorporating reciprocal liftover, single-cell accessibility profiling, and subset-level functional enrichment.
 
 ## References
-
-(Need more for background and methods)
 
 Carelli FN, Liechti A, Halbert J, Warnefors M, Kaessmann H. Repurposing of promoters and enhancers during mammalian evolution. *Nature Communications*. 2018;9:4066. https://doi.org/10.1038/s41467-018-06544-z
 
 ENCODE Project Consortium. An integrated encyclopedia of DNA elements in the human genome. *Nature*. 2012;489:57-74. https://doi.org/10.1038/nature11247
 
-Hickey G, Paten B, Earl D, et al. HAL: a hierarchical format for storing and analyzing multiple genome alignments. *Bioinformatics*. 2013;29:1341-1342. https://doi.org/10.1093/bioinformatics/btt128
-
 Gu Z, Hubschmann D. rGREAT: an R/Bioconductor package for functional enrichment on genomic regions. *Bioinformatics*. 2023;39(1):btac745. https://doi.org/10.1093/bioinformatics/btac745
 
-Zhang X, Kaplow IM, Wirthlin M, Park TY, Pfenning AR. HALPER facilitates the identification of regulatory element orthologs across species. *Bioinformatics*. 2020;36:4339-4340. https://doi.org/10.1093/bioinformatics/btaa493
+Heinz S, Benner C, Spann N, et al. Simple combinations of lineage-determining transcription factors prime cis-regulatory elements required for macrophage and B cell identities. *Molecular Cell*. 2010;38(4):576-589. https://doi.org/10.1016/j.molcel.2010.05.004
+
+Hickey G, Paten B, Earl D, Zerbino D, Haussler D. HAL: a hierarchical format for storing and analyzing multiple genome alignments. *Bioinformatics*. 2013;29(10):1341-1342. https://doi.org/10.1093/bioinformatics/btt128
+
+Liu C, Wang M, Wei X, et al. An ATAC-seq atlas of chromatin accessibility in mouse tissues. *Scientific Data*. 2019;6:65. https://doi.org/10.1038/s41597-019-0071-0
+
+Paten B, Earl D, Nguyen N, Diekhans M, Zerbino D, Haussler D. Cactus: algorithms for genome multiple sequence alignment. *Genome Research*. 2011;21(9):1512-1528. https://doi.org/10.1101/gr.123356.111
+
+Quinlan AR, Hall IM. BEDTools: a flexible suite of utilities for comparing genomic features. *Bioinformatics*. 2010;26(6):841-842. https://doi.org/10.1093/bioinformatics/btq033
+
+Stergachis AB, Neph S, Sandstrom R, et al. Conservation of trans-acting circuitry during mammalian regulatory evolution. *Nature*. 2014;515:365-370. https://doi.org/10.1038/nature13972
+
+Villar D, Berthelot C, Aldridge S, et al. Enhancer evolution across 20 mammalian species. *Cell*. 2015;160(3):554-566. https://doi.org/10.1016/j.cell.2015.01.006
+
+Wickham H. *ggplot2: Elegant Graphics for Data Analysis*. Springer-Verlag New York; 2016. https://ggplot2.tidyverse.org
+
+Zhang X, Kaplow IM, Wirthlin M, Park TY, Pfenning AR. HALPER facilitates the identification of regulatory element orthologs across species. *Bioinformatics*. 2020;36(15):4339-4340. https://doi.org/10.1093/bioinformatics/btaa493

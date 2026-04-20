@@ -186,6 +186,13 @@ results/HOMER/mouse_promoter_specific_vs_conserved/
 
 Each output directory contains the standard HOMER motif enrichment reports for known and de novo motifs, along with the corresponding log files in `logs/`.
 
+Current results summary:
+
+- Human adrenal enhancer-specific vs. conserved: top enriched mammalian motifs are nuclear receptor family members — RARγ, Nr5a2/LRH-1, SF-1/NR5A1, RAR:RXR, RORα, and RORγt. REST/NRSF (neural gene repressor) is the top overall hit. SF-1/NR5A1 is the master regulator of adrenal cortex development and steroidogenesis.
+- Human adrenal promoter-specific vs. conserved: the glucocorticoid response element (GRE) is the top enriched motif (p = 1×10⁻⁷⁹), followed by p53, Brn2/POU, and SF-1/NR5A1. GRE enrichment is directly consistent with adrenal cortex identity as the primary site of glucocorticoid synthesis.
+- Mouse adrenal enhancer-specific vs. conserved: dominated by ETS family transcription factors (ERG, EHF, ETV1, ETS1, Fli1, GABPA, and others). ETV1 has documented expression in adrenal medulla chromaffin cells.
+- Mouse adrenal promoter-specific vs. conserved: top hits are AP-2γ/TFAP2C and AP-2α/TFAP2A (neural crest TFs with established adrenal roles), followed by RARα, THRβ, the androgen receptor half-site, Nkx2.2, and Smad4.
+
 ## Citations
 
 1. Gu Z, Hubschmann D. rGREAT: an R/Bioconductor package for functional enrichment on genomic regions. *Bioinformatics*. 2023;39(1):btac745. https://doi.org/10.1093/bioinformatics/btac745
@@ -195,6 +202,7 @@ Each output directory contains the standard HOMER motif enrichment reports for k
 5. Hickey G, Paten B, Earl D, Zerbino D, Haussler D. HAL: a hierarchical format for storing and analyzing multiple genome alignments. *Bioinformatics*. 2013;29(10):1341-1342. https://doi.org/10.1093/bioinformatics/btt128
 6. Paten B, Earl D, Nguyen N, Diekhans M, Zerbino D, Haussler D. Cactus: algorithms for genome multiple sequence alignment. *Genome Research*. 2011;21(9):1512-1528. https://doi.org/10.1101/gr.123356.111
 7. Heinz S, Benner C, Spann N, et al. Simple combinations of lineage-determining transcription factors prime cis-regulatory elements required for macrophage and B cell identities. *Molecular Cell*. 2010;38(4):576-589. https://doi.org/10.1016/j.molcel.2010.05.004
+8. Liu C, Wang M, Wei X, et al. An ATAC-seq atlas of chromatin accessibility in mouse tissues. *Scientific Data*. 2019;6:65. https://doi.org/10.1038/s41597-019-0071-0
 
 Useful package pages for the Bioconductor dependencies used in `scripts/rGREAT.R`:
 
