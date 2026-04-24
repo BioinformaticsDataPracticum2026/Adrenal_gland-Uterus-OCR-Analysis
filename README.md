@@ -23,13 +23,11 @@ Repository structure:
 ```text
 data/
   qc_html/                    ENCODE-style QC HTML reports
-  idr_Conservative_Peaks/     conservative peak sets used for cross-species mapping
   idr_Optimal_Peaks/          optimal peak sets used for downstream analyses
   Promoters_and_Enhancers/    promoter/enhancer split peak sets and lifted results
 scripts/
   1a_qc_html_report.py        threshold-annotated QC HTML report generator
   1b_make_qc_table.py         QC summary table builder and terminal summary printer
-  1c_count_peaks.sh           IDR conservative peak counting helper
   2a_rGREAT.R                 rGREAT enrichment runner
   2b_rGREAT_plot.R            rGREAT result plotting script
   3a_call_adrenal_promoter_enhancer.sh
@@ -182,7 +180,6 @@ QC summaries are stored in `results/qc/`:
 
 - `*_checked.html`: threshold-annotated QC HTML reports generated from the raw ENCODE-style reports
 - `qc_summary_table.tsv` and `qc_summary_table.md`: combined metrics table across all four datasets
-- `peak_counts.txt` and `qc_interpretation.md`: supporting QC notes and interpretation
 
 Relevant scripts:
 
@@ -207,7 +204,7 @@ python scripts/1a_qc_html_report.py; python scripts/1b_make_qc_table.py --print-
 python scripts/1a_qc_html_report.py && python scripts/1b_make_qc_table.py --print-summary
 ```
 
-`1a_qc_html_report.py` reads QC HTML files from `data/qc_html/` by default and writes annotated `*_colored.html` reports to `results/qc/`. `1b_make_qc_table.py` reads the same HTML inputs by default, writes `qc_summary_table.tsv` and `qc_summary_table.md` to `results/qc/`, and optionally prints a concise per-sample summary with:
+`1a_qc_html_report.py` reads QC HTML files from `data/qc_html/` by default and writes annotated `*_checked.html` reports to `results/qc/`. `1b_make_qc_table.py` reads the same HTML inputs by default, writes `qc_summary_table.tsv` and `qc_summary_table.md` to `results/qc/`, and optionally prints a concise per-sample summary with:
 
 - `TSS Rep1` / `TSS Rep2`
 - `FRiP (pooled)`
@@ -279,7 +276,7 @@ Before running `3a_call_adrenal_promoter_enhancer.sh`, you still need to provide
 
 Intermediate and output files are stored in `data/Promoters_and_Enhancers/`.
 
-Current summary in `results/Enhancer_and_Promoters/promoters_enhancers.txt`:
+Current summary from `data/Promoters_and_Enhancers/`:
 
 - Human adrenal: 206,765 total peaks, 72,666 promoter peaks (35.15%), 134,099 enhancer peaks (64.85%)
 - Mouse adrenal: 48,263 total peaks, 27,105 promoter peaks (56.17%), 21,158 enhancer peaks (43.83%)
