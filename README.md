@@ -104,8 +104,9 @@ git clone https://github.com/pfenninglab/halLiftover-postprocessing.git
 Install HOMER:
 
 ```bash
-git clone http://homer.ucsd.edu/homer.git
+mkdir homer
 cd homer
+wget http://homer.ucsd.edu/homer/configureHomer.pl
 perl configureHomer.pl -install
 cd ..
 ```
