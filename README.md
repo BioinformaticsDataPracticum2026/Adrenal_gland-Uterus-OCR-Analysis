@@ -21,27 +21,28 @@ This pipeline was designed primarily for a SLURM-based Linux environment, especi
 Repository structure:
 
 ```text
-data/
-  qc_html/                    ENCODE-style QC HTML reports
-  idr_Optimal_Peaks/          optimal peak sets used for downstream analyses
-  Promoters_and_Enhancers/    promoter/enhancer split peak sets and lifted results
-scripts/
-  1a_qc_html_report.py        threshold-annotated QC HTML report generator
-  1b_make_qc_table.py         QC summary table builder and terminal summary printer
-  2a_rGREAT.R                 rGREAT enrichment runner
-  2b_rGREAT_plot.R            rGREAT result plotting script
-  3a_call_adrenal_promoter_enhancer.sh
-                               promoter/enhancer partitioning for adrenal OCRs
-  3b_run_hal_promoter_enhancer.sh
-                               HALPER liftover submission script
-  4a_classify_conserved_peaks.sh
-                               conserved vs. species-specific peak classification
-  5a_run_HOMER.sh             HOMER motif enrichment script
-results/
-  qc/                         QC tables, checked HTML reports, and interpretation
-  rGREAT/                     GO enrichment tables and dot plots
-  Enhancer_and_Promoters/     adrenal promoter/enhancer summary and conserved/specific peak calls
-  HOMER/                      motif enrichment results for all four specific-vs-conserved comparisons
+.
+├── data/
+│   ├── qc_html/                    ENCODE-style QC HTML reports
+│   ├── idr_Optimal_Peaks/          optimal peak sets used for downstream analyses
+│   └── Promoters_and_Enhancers/    promoter/enhancer split peak sets and lifted results
+├── scripts/
+│   ├── 1a_qc_html_report.py        threshold-annotated QC HTML report generator
+│   ├── 1b_make_qc_table.py         QC summary table builder and terminal summary printer
+│   ├── 2a_rGREAT.R                 rGREAT enrichment runner
+│   ├── 2b_rGREAT_plot.R            rGREAT result plotting script
+│   ├── 3a_call_adrenal_promoter_enhancer.sh
+│   │                                  promoter/enhancer partitioning for adrenal OCRs
+│   ├── 3b_run_hal_promoter_enhancer.sh
+│   │                                  HALPER liftover submission script
+│   ├── 4a_classify_conserved_peaks.sh
+│   │                                  conserved vs. species-specific peak classification
+│   └── 5a_run_HOMER.sh             HOMER motif enrichment script
+└── results/
+    ├── qc/                         QC tables, checked HTML reports, and interpretation
+    ├── rGREAT/                     GO enrichment tables and dot plots
+    ├── Enhancer_and_Promoters/     adrenal promoter/enhancer summary and conserved/specific peak calls
+    └── HOMER/                      motif enrichment results for all four specific-vs-conserved comparisons
 ```
 
 ## Dependencies
