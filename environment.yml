@@ -1,0 +1,16 @@
+name: ocr-analysis
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - python=3.11
+  - bedtools=2.31
+  - r-base=4.3
+  - bioconductor-rgreat
+  - bioconductor-genomicranges
+  - bioconductor-iranges
+  - r-ggplot2
+# HOMER and HALPER are loaded as cluster modules on PSC Bridges-2
+# rather than installed via conda. See scripts/3b_run_hal_promoter_enhancer.sh
+# and scripts/5a_run_HOMER.sh for the corresponding `module load` / PATH lines.
