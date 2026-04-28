@@ -1,0 +1,11 @@
+# Python
+__pycache__/
+*.pyc
+
+# Editor and OS
+.vscode/
+.idea/
+.DS_Store
+
+# HOMER non-deterministic intermediate files
+*.tmp.coBoundBy*.txt
