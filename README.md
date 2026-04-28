@@ -2,7 +2,7 @@
 
 03-713: Bioinformatics Data Integration Practicum, Spring 2026
 
-Team members: Xinyi L., Jimmy L., Yu Hsin C.
+Team members: Xinyi Li, Jimmy Lee, Yu Hsin Chen
 
 ## Project Overview
 
@@ -364,7 +364,11 @@ Xinyi Li <xinyili3@andrew.cmu.edu>,
 Jimmy Lee <jimmylee@andrew.cmu.edu>,
 Yu Hsin Chen <heather4@andrew.cmu.edu>
 
-## Citations
+## To Cite this Repository
+
+Xinyi Li, Jimmy Lee, Yu Hsin Chen (2026). Adrenal_gland-Uterus-OCR-Analysis. 03-713: Bioinformatics  Data Integration Practicum, Carnegie Mellon Univeristy.
+
+## References
 
 1. Gu Z, Hubschmann D. rGREAT: an R/Bioconductor package for functional enrichment on genomic regions. *Bioinformatics*. 2023;39(1):btac745. https://doi.org/10.1093/bioinformatics/btac745
 2. Wickham H. *ggplot2: Elegant Graphics for Data Analysis*. Springer-Verlag New York; 2016. https://ggplot2.tidyverse.org
