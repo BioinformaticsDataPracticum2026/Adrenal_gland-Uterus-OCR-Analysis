@@ -125,7 +125,7 @@ Relevant scripts:
 
 To run:
 
-```
+```bash
 # Enhance QC HTML reports and write annotated HTML files to results/qc
 python scripts/1a_qc_html_report.py
 
@@ -194,7 +194,7 @@ Rscript scripts/2c_rGREAT_plot.R
 
 Current checked-in rGREAT result directories:
 
-```text
+```bash
 results/rGREAT/Human_AdrenalGland_idr.optimal_peak/
 results/rGREAT/Mouse_AdrenalGland_idr.optimal_peak/
 ```
@@ -217,7 +217,7 @@ Relevant scripts:
 
 To run:
 
-```
+```bash
 # Partition optimal peaks into promoter-proximal and enhancer-like sets
 bash scripts/3a_call_adrenal_promoter_enhancer.sh
 
@@ -261,13 +261,13 @@ Relevant script:
 
 To run (requires `bedtools` ≥ 2.30):
 
-```
+```bash
 bash scripts/4a_classify_conserved_peaks.sh
 ```
 
 Results are stored in `results/Enhancer_and_Promoters/`:
 
-```text
+```bash
 results/Enhancer_and_Promoters/Conserved/
 results/Enhancer_and_Promoters/Specific/
 results/Enhancer_and_Promoters/conserved_specific_summary.txt
@@ -296,7 +296,7 @@ The script is configured to use repository-relative BED  inputs together with lo
 
 To run on the cluster:
 
-```
+```bash
 sbatch scripts/5a_run_HOMER.sh
 ```
 
@@ -309,7 +309,7 @@ sbatch scripts/5a_run_HOMER.sh
 
 Results are written to:
 
-```text
+```bash
 results/HOMER/human_enhancer_specific_vs_conserved/
 results/HOMER/human_promoter_specific_vs_conserved/
 results/HOMER/mouse_enhancer_specific_vs_conserved/
