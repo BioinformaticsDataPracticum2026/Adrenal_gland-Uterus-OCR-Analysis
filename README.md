@@ -117,6 +117,21 @@ conda install -c conda-forge -c bioconda \
   r-ggplot2 -y
 ```
 
+If conda itself crashes while solving packages, or the current environment already
+contains a very new R/Bioconductor combination, create a clean rGREAT environment
+instead of repairing the existing one:
+
+```bash
+conda create -n adrenal-ocr-rgreat -c conda-forge -c bioconda \
+  python=3.11 r-base=4.4 bedtools \
+  bioconductor-rgreat bioconductor-genomicranges bioconductor-iranges \
+  r-ggplot2 -y
+
+conda activate adrenal-ocr-rgreat
+Rscript -e 'library(rGREAT); library(GenomicRanges); library(IRanges)'
+Rscript scripts/2a_rGREAT.R
+```
+
 Install HALPER and the post-processing helper script:
 
 ```bash
@@ -179,7 +194,7 @@ Rscript scripts/2b_rGREAT_plot.R
 bash scripts/3a_call_adrenal_promoter_enhancer.sh
 
 # Submit HALPER liftover jobs
-sbatch scripts/3b_run_hal_promoter_enhancer.sh
+bash scripts/3b_run_hal_promoter_enhancer.sh
 
 # Classify conserved and species-specific peaks
 bash scripts/4a_classify_conserved_peaks.sh
