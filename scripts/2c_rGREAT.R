@@ -7,7 +7,7 @@ script_arg <- grep("^--file=", args, value = TRUE)
 script_path <- if (length(script_arg) > 0) {
   normalizePath(sub("^--file=", "", script_arg[[1]]), winslash = "/", mustWork = FALSE)
 } else {
-  normalizePath("scripts/2a_rGREAT.R", winslash = "/", mustWork = FALSE)
+  normalizePath("scripts/2c_rGREAT.R", winslash = "/", mustWork = FALSE)
 }
 script_dir <- dirname(script_path)
 repo_root <- normalizePath(file.path(script_dir, ".."), winslash = "/", mustWork = FALSE)
@@ -15,11 +15,12 @@ repo_root <- normalizePath(file.path(script_dir, ".."), winslash = "/", mustWork
 peak_inputs <- data.frame(
   peak_file = c(
     file.path(repo_root, "data", "idr_Optimal_Peaks", "Human_AdrenalGland_idr.optimal_peak.narrowPeak"),
-    file.path(repo_root, "data", "idr_Optimal_Peaks", "Human_Uterus_idr.optimal_peak.narrowPeak"),
     file.path(repo_root, "data", "idr_Optimal_Peaks", "Mouse_AdrenalGland_idr.optimal_peak.narrowPeak"),
-    file.path(repo_root, "data", "idr_Optimal_Peaks", "Mouse_Uterus_idr.optimal_peak.narrowPeak")
+    file.path(repo_root, "results", "Specific_and_Conserved", "human_coord_hg38.Human_AdrenalGland.conserved_overlap_mouse_MouseToHuman.bed"),
+    file.path(repo_root, "results", "Specific_and_Conserved", "human_coord_hg38.Human_AdrenalGland.specific_no_overlap_mouse_MouseToHuman.bed"),
+    file.path(repo_root, "results", "Specific_and_Conserved", "mouse_coord_mm10.Mouse_AdrenalGland.specific_no_MouseToHuman_overlap_human_adrenal.bed")
   ),
-  genome = c("hg38", "hg38", "mm10", "mm10"),
+  genome = c("hg38", "mm10", "hg38", "hg38", "mm10"),
   stringsAsFactors = FALSE
 )
 

@@ -1,0 +1,25 @@
+Mouse adrenal Mouse->Human HALPER vs human adrenal OCR summary
+================================================================
+
+Input files:
+  Mouse M2H HALPER: /mnt/d/Bioinfo/Adrenal_gland-Uterus-OCR-Analysis/data/idr_Optimal_Peaks/Mouse_AdrenalGland_idr.optimal_peak.MouseToHuman.HALPER.narrowPeak
+  Mouse peaks:      /mnt/d/Bioinfo/Adrenal_gland-Uterus-OCR-Analysis/data/idr_Optimal_Peaks/Mouse_AdrenalGland_idr.optimal_peak.narrowPeak
+  Human peaks:      /mnt/d/Bioinfo/Adrenal_gland-Uterus-OCR-Analysis/data/idr_Optimal_Peaks/Human_AdrenalGland_idr.optimal_peak.narrowPeak
+
+Total mouse adrenal peaks:       48263
+Total Mouse->Human HALPER rows:  30047
+Total human adrenal peaks:       206765
+
+Mouse source peaks in mm10 coordinates:
+  Conserved:                     25607 (53.06%)
+  Mouse specific:                22656 (46.94%)
+
+Human peaks:
+  With mouse ortholog:           41101 (19.88%)
+  Candidate human specific:      165664 (80.12%)
+
+Output files:
+  Mouse conserved:       /mnt/d/Bioinfo/Adrenal_gland-Uterus-OCR-Analysis/results/Specific_and_Conserved/mouse_coord_mm10.Mouse_AdrenalGland.conserved_by_MouseToHuman_overlap_human_adrenal.bed
+  Mouse specific:        /mnt/d/Bioinfo/Adrenal_gland-Uterus-OCR-Analysis/results/Specific_and_Conserved/mouse_coord_mm10.Mouse_AdrenalGland.specific_no_MouseToHuman_overlap_human_adrenal.bed
+  Human with ortholog:   /mnt/d/Bioinfo/Adrenal_gland-Uterus-OCR-Analysis/results/Specific_and_Conserved/human_coord_hg38.Human_AdrenalGland.conserved_overlap_mouse_MouseToHuman.bed
+  Human candidate specific: /mnt/d/Bioinfo/Adrenal_gland-Uterus-OCR-Analysis/results/Specific_and_Conserved/human_coord_hg38.Human_AdrenalGland.specific_no_overlap_mouse_MouseToHuman.bed

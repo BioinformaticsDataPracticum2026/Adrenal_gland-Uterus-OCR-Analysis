@@ -13,15 +13,17 @@ repo_root <- normalizePath(file.path(script_dir, ".."), winslash = "/", mustWork
 input_tasks <- data.frame(
   input_dir = c(
     file.path(repo_root, "results", "rGREAT", "Human_AdrenalGland_idr.optimal_peak"),
-    file.path(repo_root, "results", "rGREAT", "Human_Uterus_idr.optimal_peak"),
     file.path(repo_root, "results", "rGREAT", "Mouse_AdrenalGland_idr.optimal_peak"),
-    file.path(repo_root, "results", "rGREAT", "Mouse_Uterus_idr.optimal_peak")
+    file.path(repo_root, "results", "rGREAT", "human_coord_hg38.Human_AdrenalGland.conserved_overlap_mouse_MouseToHuman"),
+    file.path(repo_root, "results", "rGREAT", "human_coord_hg38.Human_AdrenalGland.specific_no_overlap_mouse_MouseToHuman"),
+    file.path(repo_root, "results", "rGREAT", "mouse_coord_mm10.Mouse_AdrenalGland.specific_no_MouseToHuman_overlap_human_adrenal")
   ),
   task_name = c(
     "Human_AdrenalGland",
-    "Human_Uterus",
     "Mouse_AdrenalGland",
-    "Mouse_Uterus"
+    "AdrenalGland_Conserved",
+    "Human_AdrenalGland_Specific",
+    "Mouse_AdrenalGland_Specific"
   ),
   stringsAsFactors = FALSE
 )
