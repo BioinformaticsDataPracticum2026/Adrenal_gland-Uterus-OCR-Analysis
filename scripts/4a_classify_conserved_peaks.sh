@@ -26,7 +26,7 @@ SPECIFIC_DIR="$RESULTS_DIR/Specific"
 TMP_DIR="$RESULTS_DIR/tmp"
 SUMMARY_TXT="$RESULTS_DIR/conserved_specific_summary.txt"
 
-mkdir -p "$CONSERVED_DIR" "$SPECIFIC_DIR" "$TMP_DIR"
+mkdir -p "$DATA_DIR" "$CONSERVED_DIR" "$SPECIFIC_DIR" "$TMP_DIR"
 rm -f "$SUMMARY_TXT"
 
 exec > >(tee "$SUMMARY_TXT") 2>&1
