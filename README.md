@@ -83,17 +83,38 @@ The Python scripts in this repository currently use only the Python standard lib
   ```bash
   conda create -n adrenal-ocr-analysis python=3.11 -y
   conda activate adrenal-ocr-analysis
-  conda install -c conda-forge -c bioconda pip r-base bedtools -y
+  conda install -c conda-forge -c bioconda pip r-base bedtools \
+    bioconductor-rgreat bioconductor-genomicranges bioconductor-iranges \
+    bioconductor-rsamtools bioconductor-rtracklayer bioconductor-genomicfeatures \
+    bioconductor-txdb.hsapiens.ucsc.hg19.knowngene \
+    bioconductor-txdb.hsapiens.ucsc.hg38.knowngene \
+    r-ggplot2 -y
   ```
 
 ### 3. Install analysis dependencies
 
-Install the required R packages:
+Install the required R packages. If you used the conda command above, these packages
+are already installed and you can skip this block. Prefer conda/bioconda for
+Bioconductor packages in this project because compiling packages such as
+`Rsamtools` from source can fail when the conda R environment is missing matching
+`Rhtslib`/`htslib` build files.
 
 ```bash
 Rscript -e 'install.packages("BiocManager", repos="https://cloud.r-project.org")'
 Rscript -e 'BiocManager::install(c("rGREAT", "GenomicRanges", "IRanges"), ask=FALSE, update=FALSE)'
 Rscript -e 'install.packages("ggplot2", repos="https://cloud.r-project.org")'
+```
+
+If `BiocManager::install("rGREAT")` fails, install the Bioconductor packages through conda instead:
+
+```bash
+conda activate adrenal-ocr-analysis
+conda install -c conda-forge -c bioconda \
+  bioconductor-rgreat bioconductor-rsamtools bioconductor-rtracklayer \
+  bioconductor-genomicfeatures bioconductor-genomicranges bioconductor-iranges \
+  bioconductor-txdb.hsapiens.ucsc.hg19.knowngene \
+  bioconductor-txdb.hsapiens.ucsc.hg38.knowngene \
+  r-ggplot2 -y
 ```
 
 Install HALPER and the post-processing helper script:
