@@ -159,24 +159,28 @@ Update these variables before running the corresponding scripts:
 From the repository root:
 
 ```bash
-# QC: annotate the QC HTML reports and build the QC summary table
-python scripts/1a_qc_html_report.py && python scripts/1b_make_qc_table.py --print-summary
+# QC reports and summary table
+python scripts/1a_qc_html_report.py
+python scripts/1b_make_qc_table.py --print-summary
 
-# Functional enrichment and plots
-Rscript scripts/2a_rGREAT.R
-Rscript scripts/2b_rGREAT_plot.R
+# Whole-adrenal conserved/specific classification
+bash scripts/2a_classify_adrenal_specific_conserved.sh
 
-# Partition adrenal OCRs into promoter and enhancer sets
+# rGREAT enrichment and plots
+Rscript scripts/2b_rGREAT.R
+Rscript scripts/2c_rGREAT_plot.R
+
+# Adrenal promoter/enhancer partitioning
 bash scripts/3a_call_adrenal_promoter_enhancer.sh
 
-# Submit HALPER liftover jobs
+# Submit HALPER promoter/enhancer liftover jobs
 bash scripts/3b_run_hal_promoter_enhancer.sh
 
-# Classify conserved and species-specific peaks
+# Promoter/enhancer conserved/specific classification
 bash scripts/4a_classify_conserved_peaks.sh
 
-# Run HOMER motif enrichment
-sbatch scripts/5a_run_HOMER.sh              
+# HOMER motif enrichment
+sbatch scripts/5a_run_HOMER.sh
 ```
 
 ### 6. Check outputs
