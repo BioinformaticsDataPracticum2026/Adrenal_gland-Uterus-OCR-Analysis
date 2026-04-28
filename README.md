@@ -47,7 +47,6 @@ Pipeline design:
 │   ├── 3b_run_hal_promoter_enhancer.sh
 │   ├── 4a_classify_conserved_peaks.sh
 │   └── 5a_run_HOMER.sh
-├── Pipeline_Design.png
 └── README.md
 ```
 
@@ -69,47 +68,125 @@ The HALPER and HOMER steps are written for a SLURM-based Linux cluster. Other st
 
 ## Quick Start
 
-From the repository root:
+The instructions below assume you are running in a Linux environment.
+
+### 1. Clone the repository
 
 ```bash
-# QC reports and summary table
-python scripts/1a_qc_html_report.py
-python scripts/1b_make_qc_table.py --print-summary
-
-# Whole-adrenal conserved/specific classification
-bash scripts/2a_classify_adrenal_specific_conserved.sh
-
-# rGREAT enrichment and plots
-Rscript scripts/2b_rGREAT.R
-Rscript scripts/2c_rGREAT_plot.R
-
-# Adrenal promoter/enhancer partitioning
-bash scripts/3a_call_adrenal_promoter_enhancer.sh
-
-# Submit HALPER promoter/enhancer liftover jobs
-bash scripts/3b_run_hal_promoter_enhancer.sh
-
-# Promoter/enhancer conserved/specific classification
-bash scripts/4a_classify_conserved_peaks.sh
-
-# HOMER motif enrichment
-sbatch scripts/5a_run_HOMER.sh
+git clone https://github.com/BioinformaticsDataPracticum2026/Adrenal_gland-Uterus-OCR-Analysis.git
+cd Adrenal_gland-Uterus-OCR-Analysis
 ```
 
-Before running the external-resource-dependent scripts, update or export the relevant paths:
+### 2. Create and activate a conda environment
 
-- `scripts/3a_call_adrenal_promoter_enhancer.sh`
+The Python scripts in this repository currently use only the Python standard library, so there is no required `requirements.txt` at the moment. We recommend using a conda environment to keep the Python, R, and command-line dependencies together.
+
+```bash
+conda create -n adrenal-ocr-analysis python=3.11 -y
+conda activate adrenal-ocr-analysis
+conda install -c conda-forge -c bioconda pip r-base bedtools -y                        
+```
+
+### 3. Install analysis dependencies
+
+Install the required R packages:
+
+```bash
+Rscript -e 'install.packages("BiocManager", repos="https://cloud.r-project.org")'
+Rscript -e 'install.packages("ggplot2", repos="https://cloud.r-project.org")'
+Rscript -e 'BiocManager::install("rGREAT", ask=FALSE, update=FALSE, INSTALL_opts="--no-multiarch")'
+```
+
+Install HALPER and the post-processing helper script:
+
+```bash
+git clone https://github.com/pfenninglab/halLiftover-postprocessing.git
+```
+
+Install HOMER:
+
+```bash
+mkdir homer
+cd homer
+wget http://homer.ucsd.edu/homer/configureHomer.pl
+perl configureHomer.pl -install
+cd ..
+```
+
+You can also refer to the official project instructions:
+
+- HAL / halLiftover: https://github.com/ComparativeGenomicsToolkit/hal
+- HALPER post-processing: https://github.com/pfenninglab/halLiftover-postprocessing
+- HOMER: http://homer.ucsd.edu/homer/
+- bedtools: https://bedtools.readthedocs.io/
+- Bioconductor `rGREAT`: https://bioconductor.org/packages/rGREAT/
+- Bioconductor `GenomicRanges`: https://bioconductor.org/packages/GenomicRanges/
+- Bioconductor `IRanges`: https://bioconductor.org/packages/IRanges/
+- `ggplot2`: https://ggplot2.tidyverse.org/
+
+### 4. Configure local paths for external resources
+
+Some scripts use repository-relative input/output paths,  but still require external resources that you must provide in your  environment. The current repository already includes part of the initial input data and several intermediate results, so some scripts can be run directly without reproducing every upstream step from scratch.
+
+Update these variables before running the corresponding scripts:
+
+- ```bash
+  scripts/3a_call_adrenal_promoter_enhancer.sh
+  ```
+
   - `HUMAN_TSS`
   - `HUMAN_GENOME_INDEX`
   - `MOUSE_TSS`
   - `MOUSE_GENOME_INDEX`
-- `scripts/3b_run_hal_promoter_enhancer.sh`
+
+- ```bash
+  scripts/3b_run_hal_promoter_enhancer.sh
+  ```
+
   - `HALPER_SCRIPT`
   - `HAL`
-- `scripts/5a_run_HOMER.sh`
+
+- ```bash
+  scripts/5a_run_HOMER.sh
+  ```
+
   - `HUMAN_FA`
   - `MOUSE_FA`
-  - HOMER `bin/` path in the `export PATH=...` line
+  - the `export PATH=.../HOMER/bin:$PATH` line
+
+### 5. Run the pipeline
+
+From the repository root:
+
+```bash
+# QC: annotate the QC HTML reports and build the QC summary table
+python scripts/1a_qc_html_report.py && python scripts/1b_make_qc_table.py --print-summary
+
+# Functional enrichment and plots
+Rscript scripts/2a_rGREAT.R
+Rscript scripts/2b_rGREAT_plot.R
+
+# Partition adrenal OCRs into promoter and enhancer sets
+bash scripts/3a_call_adrenal_promoter_enhancer.sh
+
+# Submit HALPER liftover jobs
+bash scripts/3b_run_hal_promoter_enhancer.sh
+
+# Classify conserved and species-specific peaks
+bash scripts/4a_classify_conserved_peaks.sh
+
+# Run HOMER motif enrichment
+sbatch scripts/5a_run_HOMER.sh              
+```
+
+### 6. Check outputs
+
+Main outputs are written to:
+
+- `results/qc/`
+- `results/rGREAT/`
+- `results/Enhancer_and_Promoters/`
+- `results/HOMER/`
 
 ## 1. Evaluate data quality
 
