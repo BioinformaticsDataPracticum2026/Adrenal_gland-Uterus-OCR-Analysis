@@ -45,6 +45,10 @@ Repository structure:
     └── HOMER/                      motif enrichment results for all four specific-vs-conserved comparisons
 ```
 
+Pipeline design:
+
+![Pipeline_Design](Pipeline_Design.png)
+
 ## Dependencies
 
 The analyses in this repository depend on the following software and resources:
